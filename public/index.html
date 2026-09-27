@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF1F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12181D" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Trainingssteuerung</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏃</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#EEF1F2; --surface:#FFFFFF; --ink:#16202A; --muted:#5A6773; --line:#D3DADF;
+  --run:#1F5FBF; --ride:#0E7C63; --indoor:#6C45C9; --other:#9AA4AD;
+  --fatigue:#D9820B; --fit:#16202A; --pos:#2E8B57; --neg:#C23B3B; --warn-bg:#FFF4DC; --warn-ink:#6B4A00;
+  --z1:#B9C6D1; --z2:#6FA3C8; --z3:#E4B43C; --z4:#E07A2E; --z5:#C23B3B;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Barlow",system-ui,sans-serif;
+  --nav-h:64px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#12181D; --surface:#1A2229; --ink:#E6ECF0; --muted:#98A5AF; --line:#2C3740;
+  --run:#5B93E6; --ride:#33B391; --indoor:#9C7BEA; --other:#6D7880;
+  --fatigue:#F0A33A; --fit:#E6ECF0; --pos:#4FBF83; --neg:#E86060; --warn-bg:#3A2F12; --warn-ink:#F5D98A;
+  --z1:#4A5864; --z2:#4F87B0;
+}}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:var(--display);font-weight:600;margin:0;letter-spacing:.01em}
+h2{font-size:1.45rem;line-height:1.15}
+h3{font-size:1.15rem}
+p{margin:0}
+a{color:inherit}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit}
+
+/* App-Rahmen */
+.appbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:14px max(16px,calc((100vw - 1100px) / 2 + 16px)) 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.appbar h1{font-size:1.35rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appbar .back{display:none;border:0;background:none;padding:6px 8px 6px 0;cursor:pointer;font-size:1rem;font-weight:500}
+.appbar.detail .back{display:inline-flex;align-items:center;gap:4px}
+#syncinfo{font-size:.78rem;text-align:right;line-height:1.25}
+main{max-width:1100px;margin:0 auto;padding:18px 16px calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 28px)}
+.banner{background:var(--warn-bg);color:var(--warn-ink);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:.9rem}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(4,1fr);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:var(--muted);font-size:.75rem;font-weight:500}
+nav.tabs a svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs a[aria-current="page"]{color:var(--ink)}
+nav.tabs a[aria-current="page"] svg{stroke-width:2.4}
+nav.tabs a:focus-visible,.row:focus-visible,.chip:focus-visible,.seg button:focus-visible{outline:2px solid var(--run);outline-offset:-2px}
+
+section{margin-bottom:32px}
+.sechead{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.lead{font-size:.9rem;color:var(--muted);margin-bottom:12px;max-width:62ch}
+.chartbox{position:relative;height:260px}
+.chartbox.tall{height:300px}
+.panel{background:var(--surface);border-radius:12px;padding:16px}
+
+/* Heute */
+.state{font-family:var(--display);font-weight:700;font-size:clamp(2.4rem,11vw,3.8rem);line-height:.95}
+.state-sub{margin-top:8px;color:var(--muted);max-width:40ch}
+.reasons{margin:12px 0 0;padding:0;list-style:none}
+.reasons li{font-size:.92rem;color:var(--muted);padding:2px 0}
+.reasons li::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle}
+.reasons li.neg{color:var(--neg)} .reasons li.pos{color:var(--pos)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+.stat b{display:block;font-family:var(--display);font-size:1.6rem;font-weight:600;line-height:1.05}
+.stat span{font-size:.75rem;color:var(--muted);line-height:1.2;display:block}
+.session{border-left:5px solid var(--run);padding:4px 0 4px 16px}
+.session .what{font-family:var(--display);font-size:1.9rem;font-weight:700;line-height:1.05}
+.session .how{font-size:1.05rem;margin-top:6px}
+.session .why{margin:10px 0 0;padding:0;list-style:none}
+.session .why li{font-size:.88rem;color:var(--muted);padding:2px 0}
+.outlook{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.outlook div{border-top:3px solid var(--line);padding-top:6px;font-size:.85rem}
+.outlook b{display:block;font-weight:600}
+.meter{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin:8px 0 4px}
+.meter i{display:block;height:100%;background:var(--ink)}
+.recs{list-style:none;margin:0;padding:0}
+.recs li{padding:12px 0;border-bottom:1px solid var(--line)}
+.recs li:last-child{border-bottom:0}
+.recs b{display:block;font-weight:600}
+.recs span{font-size:.9rem;color:var(--muted);display:block;margin-top:2px}
+.recs small{font-size:.78rem;color:var(--muted)}
+
+/* Einheiten */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.chip{flex:none;font:500 .88rem var(--body);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.weekhead{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);padding:14px 2px 6px}
+.list{background:var(--surface);border-radius:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.row:last-child{border-bottom:0}
+.row .ic{width:10px;height:36px;border-radius:5px}
+.row .t{font-weight:600;line-height:1.2}
+.row .s{font-size:.82rem;color:var(--muted)}
+.row .r{text-align:right;font-variant-numeric:tabular-nums}
+.row .r b{font-family:var(--display);font-size:1.2rem;font-weight:600;display:block;line-height:1}
+.row .r small{font-size:.72rem;color:var(--muted)}
+
+/* Detail */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px;margin:14px 0 4px}
+.kpis b{display:block;font-family:var(--display);font-size:1.5rem;font-weight:600;line-height:1.05}
+.kpis span{font-size:.75rem;color:var(--muted)}
+.verdict{font-size:1.02rem;margin-top:10px;max-width:60ch}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:.78rem;padding:6px 8px 6px 0;border-bottom:1px solid var(--line)}
+td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+td.num,th.num{text-align:right}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
+.pager a{font-size:.9rem;text-decoration:none;padding:8px 0}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:500 .85rem var(--body);background:transparent;color:var(--muted);border:0;padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.insights{list-style:none;margin:0;padding:0}
+.insights li{padding:12px 0 12px 14px;border-left:3px solid var(--line);margin-bottom:8px}
+.insights li.solid{border-left-color:var(--ink)}
+.insights li.warn{border-left-color:var(--neg)}
+.insights p{font-size:.93rem}
+.insights small{display:block;margin-top:4px;color:var(--muted);font-size:.78rem}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.up{color:var(--pos)} .down{color:var(--neg)}
+.note{font-size:.8rem;color:var(--muted);margin-top:8px}
+.empty{padding:40px 0;max-width:52ch}
+.empty h2{margin-bottom:10px}
+.tablewrap{overflow-x:auto}
+.grid2>div,.grid2>section{margin-bottom:28px}
+
+@media (min-width:900px){
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  .heute{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+  .kpis{grid-template-columns:repeat(6,1fr)}
+  nav.tabs{top:0;bottom:auto;left:50%;transform:translateX(-50%);width:min(560px,60vw);height:var(--nav-h);padding:0;border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px}
+  nav.tabs a{flex-direction:row;font-size:.9rem;gap:8px}
+  .appbar{top:calc(var(--nav-h) + env(safe-area-inset-top,0px))}
+  body{padding-top:var(--nav-h)}
+  main{padding-bottom:48px}
+}
+@media (prefers-reduced-motion:no-preference){ .view{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}} }
+</style>
+</head>
+<body>
+<header class="appbar" id="appbar">
+  <button class="back" id="back" aria-label="Zurück zur Liste">‹ Einheiten</button>
+  <h1 id="title">Heute</h1>
+  <p id="syncinfo" class="muted"></p>
+</header>
+<main><div id="banner"></div><div id="view" class="view"></div></main>
+<nav class="tabs" aria-label="Bereiche">
+  <a href="#heute" data-tab="heute"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Heute</a>
+  <a href="#einheiten" data-tab="einheiten"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Einheiten</a>
+  <a href="#fortschritt" data-tab="fortschritt"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Fortschritt</a>
+  <a href="#analyse" data-tab="analyse"><svg viewBox="0 0 24 24"><path d="M20.8 11.2a8.8 8.8 0 1 1-8-8V12z"/><path d="M15 3.3A8.8 8.8 0 0 1 20.7 9H15z"/></svg>Analyse</a>
+</nav>
+
+<script>
+// ================= Konfiguration =================
+// Laufband (Typ 8/11) ist kein Trainingsfokus: zählt zur Belastung, wird aber unter „Sonstiges“ geführt.
+const SPORTS = {
+  run:    { label: "Laufen",         types: ["1"],  color: "--run",    fam: "run" },
+  ride:   { label: "Rad draußen",    types: ["9"],  color: "--ride",   fam: "bike" },
+  indoor: { label: "Indoor-Cycling", types: ["10"], color: "--indoor", fam: "bike" },
+  other:  { label: "Sonstiges",      types: [],     color: "--other",  fam: "other" },
+};
+const FOCUS = ["run", "ride", "indoor"];
+const ZONES = ["Z1 Regeneration", "Z2 Grundlage", "Z3 Tempo", "Z4 Schwelle", "Z5 Maximal"];
+const ZPCT = [.5, .6, .7, .8, .9, 1];
+
+// ================= Helfer =================
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const sportOf = (t) => Object.keys(SPORTS).find((k) => SPORTS[k].types.includes(String(t))) || "other";
+const dayKey = (d) => d.toLocaleDateString("sv-SE");
+const today = () => dayKey(new Date());
+const addDays = (s, n) => { const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return dayKey(d); };
+const diffDays = (a, b) => Math.round((new Date(a + "T12:00:00") - new Date(b + "T12:00:00")) / 864e5);
+const weekKey = (s) => { const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return dayKey(d); };
+const fmtDate = (s, o = { day: "2-digit", month: "2-digit" }) => new Date(s + "T12:00:00").toLocaleDateString("de-DE", o);
+const fmtDur = (sec) => { const m = Math.round(sec / 60); return m >= 60 ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")} h` : `${m} min`; };
+const fmtH = (min) => min == null ? "–" : `${Math.floor(min / 60)}:${String(Math.round(min % 60)).padStart(2, "0")} h`;
+const fmtPace = (s) => s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}` : "–";
+const nf = (v, d = 0) => v == null || !isFinite(v) ? "–" : v.toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+const sg = (v, d = 0) => v == null || !isFinite(v) ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "±") + nf(Math.abs(v), d);
+const round5 = (v) => Math.round(v / 5) * 5;
+const clean = (a) => a.filter((v) => v != null && isFinite(v));
+const mean = (a) => { a = clean(a); return a.length ? a.reduce((s, x) => s + x, 0) / a.length : null; };
+const median = (a) => { const s = clean(a).sort((x, y) => x - y); if (!s.length) return null; const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const sd = (a) => { a = clean(a); if (a.length < 2) return null; const m = mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
+const quantile = (a, q) => { const s = clean(a).sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(q * s.length))] : null; };
+function welch(a, b, min = 5) {
+  a = clean(a); b = clean(b);
+  if (a.length < min || b.length < min) return null;
+  const se = Math.sqrt(sd(a) ** 2 / a.length + sd(b) ** 2 / b.length), diff = mean(a) - mean(b);
+  return { diff, t: se > 0 ? diff / se : 0, na: a.length, nb: b.length, ma: mean(a), mb: mean(b) };
+}
+const strength = (r) => r && Math.abs(r.t) >= 2 ? "belastbar" : "Tendenz";
+const speedOf = (w) => w.distanceM && w.durationSec ? w.distanceM / w.durationSec : null; // m/s
+const paceOf = (w) => w.paceSecKm || (w.distanceM ? w.durationSec / (w.distanceM / 1000) : null);
+const tempoTxt = (w) => !w.distanceM ? "–" : SPORTS[w.sport].fam === "run" ? `${fmtPace(paceOf(w))} /km` : `${nf(speedOf(w) * 3.6, 1)} km/h`;
+
+// ================= Pulsparameter aus Messwerten =================
+function robustMax(values) {
+  const s = clean(values).filter((v) => v >= 120 && v <= 230).sort((a, b) => b - a);
+  if (!s.length) return null;
+  for (let i = 0; i < s.length - 1; i++) if (s[i] - s[i + 1] <= 5) return { value: s[i], n: s.length };
+  return { value: s[s.length - 1], n: s.length };
+}
+function deriveHr(ws, days) {
+  const recent = ws.filter((w) => w.date >= addDays(today(), -730));
+  const global = robustMax(recent.map((w) => w.maxHr)) || { value: 190, n: 0, fallback: true };
+  const byFam = { other: { ...global, own: false } };
+  for (const f of ["run", "bike"]) {
+    const vals = recent.filter((w) => SPORTS[w.sport].fam === f).map((w) => w.maxHr);
+    const r = clean(vals).length >= 8 ? robustMax(vals) : null;
+    byFam[f] = r ? { ...r, own: true } : { ...global, own: false };
+  }
+  const rhrDates = Object.keys(days).filter((d) => days[d].rhr).sort();
+  const globalRest = median(rhrDates.map((d) => days[d].rhr));
+  const cache = {};
+  const restAt = (date) => {
+    if (cache[date] !== undefined) return cache[date];
+    const from = addDays(date, -30);
+    const vals = rhrDates.filter((d) => d > from && d <= date).map((d) => days[d].rhr);
+    return (cache[date] = vals.length >= 5 ? median(vals) : globalRest);
+  };
+  const zoneBpm = (fam) => ZPCT.map((p) => Math.round(p * byFam[fam].value));
+  return { global, byFam, restAt, globalRest, zoneBpm };
+}
+function baseline(days, date, key, win = 30) {
+  const vals = [];
+  for (let i = 1; i <= win; i++) { const v = days[addDays(date, -i)]?.[key]; if (v != null) vals.push(v); }
+  if (vals.length < 7) return null;
+  const m = median(vals);
+  return { m, spread: Math.max(key === "rhr" ? 1.5 : 20, 1.4826 * median(vals.map((v) => Math.abs(v - m)))), n: vals.length };
+}
+
+// ================= Analytik =================
+function prepare(data) {
+  const days = data.days || {};
+  const ws = data.workouts.filter((w) => w.start && w.durationSec);
+  for (const w of ws) { w.sport = sportOf(w.type); w.date = dayKey(new Date(w.start * 1000)); }
+  const hr = deriveHr(ws, days);
+  const trimpF = (x) => x * 0.64 * Math.exp(1.92 * x);
+  for (const w of ws) {
+    const fam = SPORTS[w.sport].fam, max = hr.byFam[fam].value, rest = hr.restAt(w.date) ?? 60;
+    w.hrMaxUsed = max; w.hrRestUsed = rest;
+    const hrr = (h) => Math.min(1, Math.max(0, (h - rest) / (max - rest)));
+    if (w.hrBins) {
+      w.zones = [0, 0, 0, 0, 0]; w.load = 0;
+      for (const [bin, sec] of Object.entries(w.hrBins)) {
+        const h = Number(bin) + 2.5, p = h / max;
+        w.zones[p < .6 ? 0 : p < .7 ? 1 : p < .8 ? 2 : p < .9 ? 3 : 4] += sec;
+        w.load += (sec / 60) * trimpF(hrr(h));
+      }
+    } else {
+      w.zones = null;
+      w.load = w.avgHr ? (w.durationSec / 60) * trimpF(hrr(w.avgHr)) : 0;
+    }
+    const zt = w.zones ? w.zones.reduce((a, b) => a + b, 0) : 0;
+    w.hardShare = zt ? (w.zones[3] + w.zones[4]) / zt : w.avgHr ? (w.avgHr / max >= .82 ? .5 : 0) : 0;
+    w.easyShare = zt ? (w.zones[0] + w.zones[1]) / zt : w.avgHr ? (w.avgHr / max < .72 ? 1 : 0) : null;
+    if (w.sport === "run" && w.avgHr && w.distanceM > 1000) w.ef = (w.distanceM / (w.durationSec / 60)) / w.avgHr;
+  }
+  const runs = ws.filter((w) => w.ef);
+  runs.forEach((w, i) => {
+    const prev = runs.slice(Math.max(0, i - 10), i).filter((p) => p.date >= addDays(w.date, -90)).map((p) => p.ef);
+    w.efRes = prev.length >= 5 ? (w.ef / median(prev) - 1) * 100 : null;
+  });
+  const series = loadSeries(ws);
+  const byDate = Object.fromEntries(series.map((d) => [d.date, d]));
+  const hardThr = quantile(series.filter((d) => d.load > 0).map((d) => d.load), .8);
+  for (const w of ws) {
+    const d = byDate[addDays(w.date, -1)];
+    w.tsbBefore = d ? d.ctl - d.atl : null;
+    w.isHard = w.hardShare >= .15 || (hardThr && w.load >= hardThr);
+  }
+  for (const w of runs) w.tsb = byDate[w.date]?.tsb ?? null;
+  const byId = Object.fromEntries(ws.map((w) => [w.id, w]));
+  return { ws, days, hr, series, byDate, hardThr, byId };
+}
+function loadSeries(ws) {
+  if (!ws.length) return [];
+  const perDay = {};
+  for (const w of ws) perDay[w.date] = (perDay[w.date] || 0) + w.load;
+  const out = []; let ctl = 0, atl = 0;
+  for (let d = ws[0].date; d <= today(); d = addDays(d, 1)) {
+    const load = perDay[d] || 0, tsb = ctl - atl;
+    ctl += (load - ctl) / 42; atl += (load - atl) / 7;
+    out.push({ date: d, load, ctl, atl, tsb });
+  }
+  return out;
+}
+
+function readiness(P) {
+  const { days, series } = P;
+  const last = series[series.length - 1];
+  const l7 = mean(series.slice(-7).map((d) => d.load)), l28 = mean(series.slice(-28).map((d) => d.load));
+  const acwr = l28 > 0 ? l7 / l28 : null;
+  const t = today();
+  const dRef = [t, addDays(t, -1)].find((d) => days[d]?.rhr || days[d]?.sleepMin) || null;
+  const day = dRef ? days[dRef] : {};
+  const bR = dRef ? baseline(days, dRef, "rhr") : null, bS = dRef ? baseline(days, dRef, "sleepMin") : null;
+  const reasons = []; let score = 0, rhrDelta = null, sleepDelta = null, rhrZ = 0;
+  if (day.rhr && bR) {
+    rhrDelta = day.rhr - bR.m; rhrZ = rhrDelta / bR.spread;
+    if (rhrZ >= 1.5) { score -= 2; reasons.push(["neg", `Ruhepuls ${nf(rhrDelta)} bpm über deinem Basiswert`]); }
+    else if (rhrZ >= .75) { score -= 1; reasons.push(["neg", `Ruhepuls leicht erhöht (${sg(rhrDelta)} bpm)`]); }
+    else if (rhrZ <= -.5) { score += .5; reasons.push(["pos", `Ruhepuls unter Basiswert (${sg(rhrDelta)} bpm)`]); }
+    else reasons.push(["", "Ruhepuls im normalen Bereich"]);
+  }
+  if (day.sleepMin && bS) {
+    sleepDelta = day.sleepMin - bS.m;
+    if (sleepDelta <= -60) { score -= 1; reasons.push(["neg", `Schlaf ${fmtH(day.sleepMin)}, ${nf(-sleepDelta)} min unter deinem Schnitt`]); }
+    else if (sleepDelta <= -30) { score -= .5; reasons.push(["neg", `Etwas kürzer geschlafen (${fmtH(day.sleepMin)})`]); }
+    else if (sleepDelta >= 30) { score += .5; reasons.push(["pos", `Viel Schlaf (${fmtH(day.sleepMin)})`]); }
+    else reasons.push(["", `Schlaf normal (${fmtH(day.sleepMin)})`]);
+  }
+  if (last.tsb < -30) { score -= 2; reasons.push(["neg", "Ermüdung liegt weit über der Fitness"]); }
+  else if (last.tsb < -10) { score -= .5; reasons.push(["", "Produktive Belastungsphase"]); }
+  else if (last.tsb > 5) { score += 1; reasons.push(["pos", "Frisch: Ermüdung unter Fitness"]); }
+  if (acwr > 1.5) { score -= 1.5; reasons.push(["neg", `Belastungssprung: letzte 7 Tage ${nf(acwr, 1)}× so hoch wie der 4-Wochen-Schnitt`]); }
+  const level = score >= 1 ? 3 : score > -1 ? 2 : score > -3 ? 1 : 0;
+  const state = [["Ruhetag", "Mehrere Erholungssignale sind negativ."], ["Locker bleiben", "Heute nur Z1–Z2 oder kurz."],
+    ["Normal trainieren", "Geplantes Training ist okay."], ["Bereit für hart", "Gute Voraussetzungen für eine Qualitätseinheit."]][level];
+  return { level, state, reasons, rhr: day.rhr, rhrDelta, rhrZ, sleep: day.sleepMin, sleepDelta, last, acwr, dRef, hasDayData: !!(bR || bS) };
+}
+
+function buildInsights(P) {
+  const { ws, days, series, hardThr } = P;
+  const out = [];
+  const hasDays = Object.values(days).some((d) => d.rhr);
+  const rec = { hard: [[], [], []], ctrl: [], sleepHard: [], sleepCtrl: [], recoveryDays: null, shortSleepPenalty: null, rhrPenalty: null };
+  if (hasDays && hardThr) {
+    for (const d of series) {
+      const b = baseline(days, d.date, "rhr"), bs = baseline(days, d.date, "sleepMin"), prev = P.byDate[addDays(d.date, -1)];
+      if (d.load >= hardThr) {
+        for (let k = 1; k <= 3; k++) { const r = days[addDays(d.date, k)]?.rhr; if (r && b) rec.hard[k - 1].push(r - b.m); }
+        const s = days[addDays(d.date, 1)]?.sleepMin; if (s && bs) rec.sleepHard.push(s - bs.m);
+      } else if (d.load === 0 && prev && prev.load === 0) {
+        const r = days[addDays(d.date, 1)]?.rhr; if (r && b) rec.ctrl.push(r - b.m);
+        const s = days[addDays(d.date, 1)]?.sleepMin; if (s && bs) rec.sleepCtrl.push(s - bs.m);
+      }
+    }
+    const w1 = welch(rec.hard[0], rec.ctrl);
+    if (w1) {
+      const ctrlM = mean(rec.ctrl);
+      const back = [0, 1, 2].find((i) => (mean(rec.hard[i]) ?? 99) - ctrlM <= .5);
+      rec.recoveryDays = back === undefined ? 3 : back + 1;
+      out.push({ cls: w1.t >= 2 ? "solid" : "", title: "Erholung nach harten Tagen",
+        text: `Nach deinen härtesten 20 % der Trainingstage liegt der Ruhepuls in der Folgenacht ${nf(Math.abs(w1.diff), 1)} bpm ${w1.diff >= 0 ? "höher" : "niedriger"} als nach Ruhetagen. `
+          + (back === undefined ? "Auch drei Tage später ist er noch erhöht." : back === 0 ? "Schon am nächsten Tag ist er wieder normal." : `Nach ${back + 1} Tagen ist er wieder auf Normalniveau.`),
+        meta: `${strength(w1)}, ${w1.na} harte Tage gegen ${w1.nb} Ruhetage` });
+    }
+    const ws1 = welch(rec.sleepHard, rec.sleepCtrl);
+    if (ws1 && Math.abs(ws1.diff) >= 10) out.push({ cls: Math.abs(ws1.t) >= 2 ? "solid" : "", title: "Schlaf nach harten Tagen",
+      text: ws1.diff < 0 ? `Nach harten Tagen schläfst du im Schnitt ${nf(-ws1.diff)} min kürzer als nach Ruhetagen.` : `Nach harten Tagen schläfst du im Schnitt ${nf(ws1.diff)} min länger.`,
+      meta: `${strength(ws1)}, ${ws1.na} gegen ${ws1.nb} Nächte` });
+  }
+  const runs = ws.filter((w) => w.efRes != null);
+  const cond = [];
+  if (hasDays) {
+    const short = [], normal = [], high = [], low = [];
+    for (const w of runs) {
+      const bs = baseline(days, w.date, "sleepMin"), br = baseline(days, w.date, "rhr"), s = days[w.date]?.sleepMin, r = days[w.date]?.rhr;
+      if (s && bs) (s - bs.m <= -45 ? short : normal).push(w.efRes);
+      if (r && br) (r - br.m >= Math.max(3, br.spread) ? high : low).push(w.efRes);
+    }
+    const a = welch(normal, short, 4), b = welch(low, high, 4);
+    if (a) { cond.push(["Schlaf normal", a.ma, a.na], ["Schlaf kurz", a.mb, a.nb]); if (a.t >= 2) rec.shortSleepPenalty = a.diff;
+      out.push({ cls: Math.abs(a.t) >= 2 ? "solid" : "", title: "Schlaf und Laufökonomie",
+        text: `Nach einer kurzen Nacht (mindestens 45 min unter deinem Schnitt) ist deine Laufökonomie ${nf(Math.abs(a.diff), 1)} % ${a.diff > 0 ? "schlechter" : "besser"} als nach normalem Schlaf.`,
+        meta: `${strength(a)}, ${a.nb} Läufe nach kurzer gegen ${a.na} nach normaler Nacht` }); }
+    if (b) { cond.push(["Ruhepuls normal", b.ma, b.na], ["Ruhepuls erhöht", b.mb, b.nb]); if (b.t >= 2) rec.rhrPenalty = b.diff;
+      out.push({ cls: Math.abs(b.t) >= 2 ? "solid" : "", title: "Ruhepuls als Frühwarnsignal",
+        text: `Ist dein Ruhepuls morgens erhöht, läufst du ${nf(Math.abs(b.diff), 1)} % ${b.diff > 0 ? "unökonomischer" : "ökonomischer"}.`,
+        meta: `${strength(b)}, ${b.nb} gegen ${b.na} Läufe` }); }
+  }
+  const c = welch(runs.filter((w) => w.tsb != null && w.tsb >= 0).map((w) => w.efRes), runs.filter((w) => w.tsb != null && w.tsb < -15).map((w) => w.efRes), 4);
+  if (c) { cond.push(["Form positiv", c.ma, c.na], ["Form unter −15", c.mb, c.nb]);
+    out.push({ cls: Math.abs(c.t) >= 2 ? "solid" : "", title: "Form und Laufökonomie",
+      text: `Mit positiver Form bist du ${nf(Math.abs(c.diff), 1)} % ${c.diff > 0 ? "ökonomischer" : "unökonomischer"} unterwegs als in stark ermüdeten Phasen.`,
+      meta: `${strength(c)}, ${c.na} gegen ${c.nb} Läufe` }); }
+  if (hasDays && series.length > 50) {
+    const t = today(), s = series, ctlNow = s[s.length - 1].ctl, ctlThen = s[Math.max(0, s.length - 43)].ctl;
+    const rNow = median([...Array(14)].map((_, i) => days[addDays(t, -i)]?.rhr)), rThen = median([...Array(14)].map((_, i) => days[addDays(t, -42 - i)]?.rhr));
+    if (rNow && rThen && ctlThen > 0) {
+      const dc = (ctlNow / ctlThen - 1) * 100, dr = rNow - rThen, up = dc > 5, down = dc < -5, rUp = dr >= 2, rDown = dr <= -1.5;
+      const [cls, text] = up && rDown ? ["solid", "Fitness steigt, Ruhepuls sinkt: Das Training schlägt an."]
+        : up && rUp ? ["warn", "Fitness und Ruhepuls steigen: Die Belastung wächst schneller als die Erholung."]
+        : down && rUp ? ["warn", "Weniger Training, trotzdem höherer Ruhepuls: eher Stress, Schlaf oder Infekt."]
+        : down && rDown ? ["", "Weniger Training, niedrigerer Ruhepuls: Erholungsphase."] : ["", "Fitness und Ruhepuls sind stabil."];
+      rec.adaptation = cls;
+      out.push({ cls, title: "Anpassung über 6 Wochen", text: `Fitness ${sg(dc)} %, Ruhepuls ${sg(dr, 1)} bpm. ${text}`, meta: "Letzte 14 Tage gegen dieselben 14 Tage vor 6 Wochen" });
+    }
+  }
+  const w7 = series.slice(-7).map((d) => d.load), mono = sd(w7) > 0 ? mean(w7) / sd(w7) : null;
+  rec.monotony = mono;
+  if (mono > 2 && mean(w7) > 0) out.push({ cls: "warn", title: "Zu gleichförmige Woche", text: `Monotonie ${nf(mono, 1)}: an allen Tagen ähnliche Belastung ohne klare Ruhetage.`, meta: "Ø Tagesbelastung ÷ Streuung der letzten 7 Tage, über 2 gilt als riskant" });
+  const withZ = ws.filter((w) => w.zones && w.date >= addDays(today(), -56));
+  const zt = withZ.reduce((a, w) => (w.zones.forEach((s, i) => a[i] += s), a), [0, 0, 0, 0, 0]), zs = zt.reduce((a, b) => a + b, 0);
+  const efRecent = mean(runs.filter((w) => w.date >= addDays(today(), -28)).map((w) => w.ef));
+  const efOld = mean(runs.filter((w) => w.date < addDays(today(), -28) && w.date >= addDays(today(), -84)).map((w) => w.ef));
+  if (zs > 0) { rec.easyShare = (zt[0] + zt[1]) / zs * 100; rec.midShare = zt[2] / zs * 100; rec.hardShare = (zt[3] + zt[4]) / zs * 100; }
+  if (zs > 0 && efRecent && efOld) {
+    rec.efTrend = (efRecent / efOld - 1) * 100;
+    out.push({ cls: rec.efTrend < 1 && rec.easyShare < 70 ? "warn" : "", title: "Intensität und Fortschritt",
+      text: `Letzte 8 Wochen: ${nf(rec.easyShare)} % locker, ${nf(rec.midShare)} % Tempo (Z3), ${nf(rec.hardShare)} % hart. Laufökonomie ${sg(rec.efTrend, 1)} % gegenüber den 8 Wochen davor.`,
+      meta: `${withZ.length} Einheiten mit Pulsverlauf` });
+  }
+  return { out, rec, cond };
+}
+
+// ================= Trainingsempfehlung =================
+function recommend(P, R, I) {
+  const { ws, series, hr } = P, rec = I.rec, t = today();
+  const last = series[series.length - 1];
+  const recoveryDays = rec.recoveryDays ?? 2;
+  const lastHard = [...ws].reverse().find((w) => w.isHard);
+  const daysSinceHard = lastHard ? diffDays(t, lastHard.date) : 99;
+  const wk = weekKey(t);
+  const thisWeek = ws.filter((w) => weekKey(w.date) === wk);
+  const hardThisWeek = thisWeek.filter((w) => w.isHard).length;
+  const doneToday = ws.filter((w) => w.date === t);
+  const recent56 = ws.filter((w) => w.date >= addDays(t, -56));
+  const durOf = (s, q) => quantile(recent56.filter((w) => w.sport === s).map((w) => w.durationSec / 60), q);
+  const z = { run: hr.zoneBpm("run"), bike: hr.zoneBpm("bike") };
+  const zr = (fam, a, b) => `${z[fam][a]}–${z[fam][b]} bpm`;
+
+  // Wochenziel: Belastung halten bzw. moderat steigern (ACWR 0,8–1,3)
+  const ctlWeek = last.ctl * 7;
+  let factor = 1.08, weekMode = "Aufbau";
+  if (R.acwr > 1.3 || last.tsb < -25 || rec.adaptation === "warn") { factor = .7; weekMode = "Entlastung"; }
+  else if (rec.monotony > 2) { factor = 1; weekMode = "Halten"; }
+  const weekTarget = Math.max(ctlWeek * factor, 1);
+  const weekDone = thisWeek.reduce((s, w) => s + w.load, 0);
+  const daysLeft = 7 - ((new Date().getDay() + 6) % 7);
+
+  // Laufumfang: nicht mehr als +10 % gegenüber dem 4-Wochen-Schnitt
+  const runKm = (from, to) => ws.filter((w) => w.sport === "run" && w.date >= from && w.date < to).reduce((s, w) => s + (w.distanceM || 0), 0) / 1000;
+  const runKm4 = runKm(addDays(wk, -28), wk) / 4, runKmNow = runKm(wk, addDays(wk, 7));
+  const runCap = runKm4 * 1.1;
+
+  // Welche Sportart? Beinbelastung durch Laufen der letzten 3 Tage und Laufumfang der Woche
+  const run3 = ws.filter((w) => w.sport === "run" && w.date >= addDays(t, -2)).reduce((s, w) => s + w.load, 0);
+  const all3 = ws.filter((w) => w.date >= addDays(t, -2)).reduce((s, w) => s + w.load, 0);
+  const runHeavy = runKm4 > 0 && runKmNow >= runCap * .9 || (all3 > 0 && run3 / all3 > .7 && run3 > 0);
+  const hard14 = ws.filter((w) => w.isHard && w.date >= addDays(t, -14));
+  const hardRunShare = hard14.length ? hard14.filter((w) => SPORTS[w.sport].fam === "run").length / hard14.length : 0;
+  const weekend = [0, 6].includes(new Date().getDay());
+
+  let s;
+  const why = [];
+  if (doneToday.length) {
+    s = { kind: "done", what: "Heute schon trainiert", how: `${doneToday.map((w) => `${SPORTS[w.sport].label} ${fmtDur(w.durationSec)}`).join(", ")}. Regeneration steht jetzt im Vordergrund.`, color: "--other" };
+  } else if (R.level === 0) {
+    s = { kind: "rest", what: "Ruhetag", how: "Höchstens 20–30 min Spaziergang oder lockeres Ausrollen unter " + z.bike[1] + " bpm.", color: "--other" };
+    why.push("Deine Erholungssignale sind heute klar negativ.");
+  } else {
+    const tooMuchHard = (rec.hardShare ?? 0) > 20;
+    const canHard = R.level >= 2 && daysSinceHard >= recoveryDays && hardThisWeek < 2 && weekMode !== "Entlastung" && !tooMuchHard;
+    if (canHard) {
+      const fam = runHeavy ? "bike" : hardRunShare > .5 ? "bike" : "run";
+      const sport = fam === "run" ? "run" : "indoor";
+      let what, how;
+      if ((rec.midShare ?? 0) > 25) { what = "Schwellenintervalle"; how = `4 × 8 min in Z4 (${zr(fam, 3, 4)}), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2 (${zr(fam, 1, 2)}).`; why.push(`Du verbringst ${nf(rec.midShare)} % der Zeit in Z3. Gezielte Schwellenarbeit bringt mehr als weiteres Tempo „dazwischen“.`); }
+      else if ((rec.easyShare ?? 0) >= 75 && (rec.efTrend ?? 0) < 1.5) { what = "VO₂max-Intervalle"; how = `5 × 3 min in Z5 (ab ${z[fam][4]} bpm), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2.`; why.push(`Viel Grundlage (${nf(rec.easyShare)} % locker), aber die Ökonomie stagniert. Ein kurzer, harter Reiz fehlt.`); }
+      else { what = fam === "run" ? "Tempodauerlauf" : "Sweet-Spot-Intervalle"; how = fam === "run" ? `20–30 min am oberen Ende von Z3 bis Z4 (${z.run[2] + 8}–${z.run[3] + 5} bpm), davor und danach 15 min Z2.` : `3 × 12 min bei ${z.bike[2] + 5}–${z.bike[3] + 3} bpm, 4 min locker dazwischen.`; why.push(rec.easyShare != null ? `Deine Intensitätsverteilung passt (${nf(rec.easyShare)} % locker). Eine Tempo-Einheit hält die Entwicklung am Laufen.` : "Noch keine Zonendaten, daher eine moderate Tempo-Einheit."); }
+      s = { kind: "hard", what: `${what} · ${SPORTS[sport].label}`, how, color: SPORTS[sport].color };
+      why.push(`Letzte harte Einheit vor ${daysSinceHard >= 99 ? "über zwei Wochen" : daysSinceHard + " Tagen"}. Du brauchst laut deinem Ruhepuls ${recoveryDays} Tag${recoveryDays > 1 ? "e" : ""} zur Erholung.`);
+      if (fam === "bike" && runHeavy) why.push("Die Laufbelastung der letzten Tage ist hoch, auf dem Rad schonst du die Beine.");
+      if (rec.shortSleepPenalty && R.sleepDelta != null && R.sleepDelta <= -45) why.push(`Achtung: Nach kurzen Nächten ist deine Laufökonomie im Schnitt ${nf(rec.shortSleepPenalty, 1)} % schlechter. Heute auf dem Rad oder später verschieben.`);
+    } else {
+      const long = weekend && R.level >= 2 && weekMode !== "Entlastung";
+      const sport = runHeavy ? (weekend ? "ride" : "indoor") : (daysSinceHard <= 1 ? (weekend ? "ride" : "indoor") : "run");
+      const fam = SPORTS[sport].fam;
+      const base = durOf(sport, .5) ?? (fam === "run" ? 45 : 60), lng = durOf(sport, .8) ?? base * 1.5;
+      const mins = long ? round5(Math.min(lng * 1.1, fam === "run" ? 150 : 240)) : round5(Math.max(30, R.level === 1 ? base * .75 : base));
+      s = { kind: long ? "long" : "easy", what: `${long ? "Lange Grundlage" : "Lockere Grundlage"} · ${SPORTS[sport].label}`,
+        how: `${mins} min in Z2 (${zr(fam, 1, 2)}).${long ? " Gleichmäßig, bei Anstiegen Tempo rausnehmen statt Puls hochzutreiben." : " Du solltest dich dabei problemlos unterhalten können."}`, color: SPORTS[sport].color };
+      if (R.level === 1) why.push("Die Erholungssignale sprechen heute gegen hohe Intensität.");
+      if (daysSinceHard < recoveryDays) why.push(`Letzte harte Einheit vor ${daysSinceHard} Tag${daysSinceHard === 1 ? "" : "en"}, du brauchst im Schnitt ${recoveryDays} Tag${recoveryDays > 1 ? "e" : ""} zur Erholung.`);
+      if (hardThisWeek >= 2) why.push("Diese Woche hattest du schon zwei harte Einheiten, mehr bringt selten mehr.");
+      if (weekMode === "Entlastung") why.push("Entlastungswoche: Belastung zuletzt zu stark gestiegen.");
+      if (tooMuchHard) why.push(`${nf(rec.hardShare)} % deiner Trainingszeit der letzten 8 Wochen lagen in Z4–Z5. Das ist zu viel, mehr Grundlage bringt jetzt den größeren Fortschritt.`);
+      if (runHeavy && fam === "bike") why.push("Laufumfang der Woche ist fast am Limit (+10 % zum Schnitt), deshalb Rad.");
+      if (long) why.push(`Wochenende: Deine längeren Einheiten dieser Sportart dauern ${round5(lng)} min.`);
+    }
+  }
+
+  // Ausblick: harte Tage im Abstand deiner Erholungszeit
+  const outlook = [];
+  let lastHardOffset = s?.kind === "hard" ? 0 : daysSinceHard >= 99 ? -99 : -daysSinceHard, hardCount = hardThisWeek + (s?.kind === "hard" ? 1 : 0);
+  for (let i = 1; i <= 3; i++) {
+    const d = addDays(t, i), wd = new Date(d + "T12:00:00").getDay();
+    if (wd === 1) hardCount = 0;
+    let txt;
+    if (weekMode === "Entlastung") txt = i === 2 ? "Ruhetag" : "Locker Z1–Z2";
+    else if (i - lastHardOffset >= recoveryDays && hardCount < 2 && i > 1) { txt = "Qualitätseinheit möglich"; lastHardOffset = i; hardCount++; }
+    else if (i - lastHardOffset === 1 && lastHardOffset >= 0) txt = "Locker oder Ruhetag";
+    else txt = [0, 6].includes(wd) ? "Lange Grundlage" : "Grundlage Z2";
+    outlook.push({ d, txt });
+  }
+
+  // Wochen- und Langfrist-Empfehlungen
+  const recs = [];
+  recs.push({ b: `Wochenziel ${weekMode}: ${nf(weekDone)} von ${nf(weekTarget)} Belastungspunkten`,
+    s: weekDone >= weekTarget ? "Ziel erreicht. Restliche Tage locker oder frei." : `Noch ${nf(weekTarget - weekDone)} Punkte in ${daysLeft} Tag${daysLeft > 1 ? "en" : ""}.`,
+    m: weekMode === "Aufbau" ? "Ziel: 8 % über deinem Fitnessniveau" : weekMode === "Entlastung" ? "Ziel: 30 % unter deinem Fitnessniveau" : "Ziel: Fitnessniveau halten", pct: Math.min(1, weekDone / weekTarget) });
+  if (runKm4 > 0) recs.push({ b: `Laufumfang: ${nf(runKmNow, 1)} von max. ${nf(runCap, 1)} km`, s: runKmNow > runCap ? "Über der 10-%-Grenze. Weitere Einheiten auf dem Rad statt laufend." : "Mehr als 10 % pro Woche erhöht das Verletzungsrisiko für Sehnen und Knochen.", m: `4-Wochen-Schnitt ${nf(runKm4, 1)} km`, pct: Math.min(1, runKmNow / runCap) });
+  if (rec.easyShare != null) recs.push({ b: rec.easyShare < 75 ? "Mehr locker, weniger mittel" : "Intensitätsverteilung passt",
+    s: rec.easyShare < 75 ? `Nur ${nf(rec.easyShare)} % deiner Zeit sind locker. Lockere Einheiten konsequent unter ${z.run[2]} bpm (Laufen) bzw. ${z.bike[2]} bpm (Rad) halten.` : `${nf(rec.easyShare)} % locker, ${nf(rec.hardShare)} % hart. So weitermachen.`, m: "Letzte 8 Wochen, Richtwert rund 80 % locker" });
+  if (rec.recoveryDays) recs.push({ b: `Mindestens ${rec.recoveryDays} Tag${rec.recoveryDays > 1 ? "e" : ""} zwischen harten Einheiten`, s: "So lange braucht dein Ruhepuls, um nach harten Tagen wieder auf Normalniveau zu kommen.", m: "Aus deinen Ruhepulsdaten abgeleitet" });
+  if (rec.shortSleepPenalty) recs.push({ b: "Harte Läufe nicht nach kurzen Nächten", s: `Nach kurzem Schlaf bist du im Schnitt ${nf(rec.shortSleepPenalty, 1)} % unökonomischer. Harte Einheiten dann aufs Rad legen oder verschieben.`, m: "Aus deinen Lauf- und Schlafdaten abgeleitet" });
+  if (rec.rhrPenalty) recs.push({ b: "Morgens den Ruhepuls prüfen", s: `Bei erhöhtem Ruhepuls läufst du ${nf(rec.rhrPenalty, 1)} % unökonomischer. Das ist dein verlässlichstes Signal, eine harte Einheit zu tauschen.`, m: "Aus deinen Lauf- und Ruhepulsdaten abgeleitet" });
+  if (rec.monotony > 2) recs.push({ b: "Klare Ruhetage einbauen", s: "Deine Woche ist zu gleichförmig. Ein kompletter Ruhetag senkt das Überlastungsrisiko stärker als zwei halbe.", m: `Monotonie ${nf(rec.monotony, 1)}` });
+  return { s, why, outlook, recs, z };
+}
+
+// ================= Rendering =================
+const charts = {};
+let P, R, I, REC, DATA, currentFilter = "all";
+function destroyCharts() { Object.keys(charts).forEach((k) => { charts[k].destroy(); delete charts[k]; }); }
+function mk(id, cfg) { const el = document.getElementById(id); if (el) charts[id] = new Chart(el, cfg); }
+const ax = (text) => ({ display: true, text, font: { size: 11, weight: "500" } });
+const legendBottom = { position: "bottom", labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 } } };
+const baseOpts = (extra = {}) => ({ responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: "index", intersect: false }, plugins: { legend: legendBottom }, ...extra });
+const zoneBandsPlugin = {
+  id: "zoneBands",
+  beforeDatasetsDraw(c, _a, o) {
+    if (!o?.bands) return;
+    const { ctx, chartArea: a, scales: { y } } = c;
+    o.bands.forEach(([lo, hi, col]) => {
+      const top = Math.max(a.top, y.getPixelForValue(hi)), bot = Math.min(a.bottom, y.getPixelForValue(lo));
+      if (bot <= top) return;
+      ctx.save(); ctx.globalAlpha = .16; ctx.fillStyle = col; ctx.fillRect(a.left, top, a.right - a.left, bot - top); ctx.restore();
+    });
+  },
+};
+
+function route() {
+  const h = location.hash.replace(/^#/, "") || "heute";
+  const [tab, id] = h.split("/");
+  const appbar = document.getElementById("appbar"), view = document.getElementById("view");
+  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === (tab === "einheit" ? "einheiten" : tab) ? "page" : "false"));
+  appbar.classList.toggle("detail", tab === "einheit");
+  destroyCharts();
+  view.style.animation = "none"; void view.offsetWidth; view.style.animation = "";
+  if (!P || !P.ws.length) { document.getElementById("title").textContent = "Trainingssteuerung"; view.innerHTML = emptyView(); return; }
+  const titles = { heute: "Heute", einheiten: "Einheiten", fortschritt: "Fortschritt", analyse: "Analyse" };
+  if (tab === "einheit" && P.byId[id]) viewDetail(P.byId[id]);
+  else if (titles[tab]) { document.getElementById("title").textContent = titles[tab]; ({ heute: viewToday, einheiten: viewList, fortschritt: viewProgress, analyse: viewAnalysis })[tab](); }
+  else { location.hash = "#heute"; return; }
+  window.scrollTo(0, 0);
+}
+
+function emptyView() {
+  return `<div class="empty"><h2>Noch keine Trainingsdaten</h2><p class="muted">Der Sync läuft täglich um 04:00 UTC. Für den ersten Import <code>/api/sync?key=…</code> mit deinem SYNC_KEY aufrufen. Mit <a href="?demo">?demo</a> siehst du die App mit Beispieldaten.</p></div>`;
+}
+
+// ---------- Heute ----------
+function viewToday() {
+  const s = REC.s;
+  document.getElementById("view").innerHTML = `
+  <div class="heute">
+    <section>
+      <div class="state">${R.state[0]}</div>
+      <p class="state-sub">${R.state[1]}</p>
+      <ul class="reasons">${R.reasons.map(([c, t]) => `<li class="${c}">${t}</li>`).join("")}</ul>
+      <div class="stats">
+        <div class="stat"><b>${R.rhr ?? "–"}</b><span>Ruhepuls${R.rhrDelta != null ? ` ${sg(R.rhrDelta)}` : ""}</span></div>
+        <div class="stat"><b>${fmtH(R.sleep)}</b><span>Schlaf${R.sleepDelta != null ? ` ${sg(R.sleepDelta)} min` : ""}</span></div>
+        <div class="stat"><b>${sg(R.last.tsb)}</b><span>Form</span></div>
+        <div class="stat"><b>${nf(R.acwr, 2)}</b><span>Akut/ Chronisch</span></div>
+      </div>
+      ${R.dRef && R.dRef !== today() ? `<p class="note">Tageswerte vom ${fmtDate(R.dRef)}, die Uhr hat heute noch nicht synchronisiert.</p>` : ""}
+      ${!R.hasDayData ? `<p class="note">Noch zu wenig Schlaf- und Ruhepulsdaten. Die Empfehlung beruht nur auf der Trainingsbelastung.</p>` : ""}
+    </section>
+    <section>
+      <div class="sechead"><h2>Empfehlung für heute</h2></div>
+      <div class="panel">
+        <div class="session" style="border-left-color:var(${s.color})">
+          <div class="what">${s.what}</div>
+          <p class="how">${s.how}</p>
+          ${REC.why.length ? `<ul class="why">${REC.why.map((w) => `<li>${w}</li>`).join("")}</ul>` : ""}
+        </div>
+        <div class="outlook">${REC.outlook.map((o) => `<div><b>${fmtDate(o.d, { weekday: "short" })}</b>${o.txt}</div>`).join("")}</div>
+      </div>
+    </section>
+  </div>
+  <section>
+    <div class="sechead"><h2>Deine Leitplanken</h2></div>
+    <p class="lead">Aus deinen eigenen Daten abgeleitet, nicht aus Standardtabellen.</p>
+    <div class="panel"><ul class="recs">${REC.recs.map((r) => `<li><b>${r.b}</b>${r.pct != null ? `<div class="meter" role="img" aria-label="${nf(r.pct * 100)} %"><i style="width:${r.pct * 100}%"></i></div>` : ""}<span>${r.s}</span><small>${r.m}</small></li>`).join("")}</ul></div>
+  </section>
+  <section>
+    <div class="sechead"><h2>Deine Pulszonen</h2></div>
+    <div class="panel tablewrap"><table>
+      <thead><tr><th>Zone</th><th class="num">Laufen</th><th class="num">Rad</th></tr></thead>
+      <tbody>${ZONES.map((zn, i) => `<tr><td><span class="dot" style="background:var(--z${i + 1})"></span>${zn}</td><td class="num">${REC.z.run[i]}–${REC.z.run[i + 1]}</td><td class="num">${REC.z.bike[i]}–${REC.z.bike[i + 1]}</td></tr>`).join("")}</tbody>
+    </table><p class="note">${hrNote()}</p></div>
+  </section>
+  <section>
+    <div class="sechead"><h2>Diese Woche</h2></div>
+    <p class="lead">Seit Montag, verglichen mit dem Schnitt der vier Wochen davor.</p>
+    <div class="panel tablewrap"><table id="tWeek"></table></div>
+  </section>`;
+  drawWeek();
+}
+
+function hrNote() {
+  const h = P.hr;
+  return `Max. Puls Laufen ${h.byFam.run.value}${h.byFam.run.own ? "" : "*"}, Rad ${h.byFam.bike.value}${h.byFam.bike.own ? "" : "*"} bpm: höchster plausibler Wert aus ${h.global.n} Einheiten der letzten 2 Jahre, einzelne Ausreißer ignoriert.`
+    + (h.byFam.run.own && h.byFam.bike.own ? "" : " * unter 8 Einheiten dieser Sportart, daher sportartübergreifend.")
+    + (h.globalRest ? ` Ruhepuls: Median der Nachtwerte der letzten 30 Tage, aktuell ${nf(h.restAt(today()))} bpm.` : " Keine Ruhepuls-Daten, Belastung mit 60 bpm geschätzt.")
+    + " Nie ausgereizter Maximalpuls lässt die Zonen zu niedrig ausfallen.";
+}
+
+function drawWeek() {
+  const wk = weekKey(today()), prev = [1, 2, 3, 4].map((i) => addDays(wk, -7 * i));
+  const agg = (list) => { const r = {}; for (const w of list) { const s = r[w.sport] ||= { n: 0, sec: 0, m: 0, load: 0 }; s.n++; s.sec += w.durationSec; s.m += w.distanceM || 0; s.load += w.load; } return r; };
+  const cur = agg(P.ws.filter((w) => weekKey(w.date) === wk)), past = agg(P.ws.filter((w) => prev.includes(weekKey(w.date))));
+  const delta = (c, p) => { if (!p) return ""; const d = (c - p) / p * 100; return ` <span class="${d >= 0 ? "up" : "down"}">${sg(d)} %</span>`; };
+  const rows = Object.keys(SPORTS).filter((k) => cur[k] || past[k]).map((k) => {
+    const c = cur[k] || { n: 0, sec: 0, m: 0, load: 0 }, p = past[k] || { n: 0, sec: 0, m: 0, load: 0 };
+    return `<tr><td><span class="dot" style="background:var(${SPORTS[k].color})"></span>${SPORTS[k].label}</td><td class="num">${c.n}</td>
+      <td class="num">${fmtDur(c.sec)}${delta(c.sec, p.sec / 4)}</td><td class="num">${c.m || p.m ? `${nf(c.m / 1000, 1)} km${delta(c.m, p.m / 4)}` : "–"}</td><td class="num">${nf(c.load)}${delta(c.load, p.load / 4)}</td></tr>`;
+  }).join("");
+  document.getElementById("tWeek").innerHTML = `<thead><tr><th>Sportart</th><th class="num">Anz.</th><th class="num">Zeit</th><th class="num">Distanz</th><th class="num">Belastung</th></tr></thead><tbody>${rows || `<tr><td colspan="5" class="muted">Keine Einheiten in den letzten fünf Wochen.</td></tr>`}</tbody>`;
+}
+
+// ---------- Einheiten ----------
+function viewList() {
+  const present = Object.keys(SPORTS).filter((k) => P.ws.some((w) => w.sport === k));
+  const list = P.ws.filter((w) => currentFilter === "all" || w.sport === currentFilter).slice().reverse().slice(0, 150);
+  const groups = [];
+  for (const w of list) { const k = weekKey(w.date); let g = groups[groups.length - 1]; if (!g || g.k !== k) groups.push(g = { k, items: [] }); g.items.push(w); }
+  document.getElementById("view").innerHTML = `
+    <div class="chips" role="group" aria-label="Sportart filtern">${[["all", "Alle"], ...present.map((k) => [k, SPORTS[k].label])].map(([k, l]) => `<button class="chip" data-k="${k}" aria-pressed="${k === currentFilter}">${l}</button>`).join("")}</div>
+    ${groups.map((g) => `<div class="weekhead"><span>Woche ab ${fmtDate(g.k, { day: "numeric", month: "long" })}</span><span>${fmtDur(g.items.reduce((s, w) => s + w.durationSec, 0))} · ${nf(g.items.reduce((s, w) => s + w.load, 0))} Punkte</span></div>
+      <div class="list">${g.items.map(rowHtml).join("")}</div>`).join("")}`;
+  document.querySelectorAll(".chip").forEach((b) => b.onclick = () => { currentFilter = b.dataset.k; viewList(); });
+}
+function intensityLabel(w) {
+  if (w.easyShare == null) return "";
+  return w.isHard ? "Hart" : w.easyShare >= .8 ? "Locker" : "Mittel";
+}
+function rowHtml(w) {
+  return `<a class="row" href="#einheit/${w.id}">
+    <span class="ic" style="background:var(${SPORTS[w.sport].color})"></span>
+    <span><span class="t">${SPORTS[w.sport].label}${intensityLabel(w) ? ` · ${intensityLabel(w)}` : ""}</span><br>
+      <span class="s">${fmtDate(w.date, { weekday: "short", day: "2-digit", month: "2-digit" })} · ${fmtDur(w.durationSec)}${w.distanceM ? ` · ${nf(w.distanceM / 1000, 1)} km` : ""}${w.avgHr ? ` · Ø ${w.avgHr} bpm` : ""}</span></span>
+    <span class="r"><b>${nf(w.load)}</b><small>Belastung</small></span></a>`;
+}
+
+// ---------- Detail ----------
+function viewDetail(w) {
+  document.getElementById("title").textContent = `${SPORTS[w.sport].label}, ${fmtDate(w.date, { day: "numeric", month: "short" })}`;
+  const fam = SPORTS[w.sport].fam, isRun = fam === "run";
+  const day = P.days[w.date] || {}, bR = baseline(P.days, w.date, "rhr"), bS = baseline(P.days, w.date, "sleepMin");
+  const similar = P.ws.filter((x) => x.id !== w.id && x.sport === w.sport && x.date >= addDays(w.date, -180) && x.date <= addDays(w.date, 30)
+    && Math.abs(x.durationSec / w.durationSec - 1) <= .3 && Math.abs((x.easyShare ?? .5) - (w.easyShare ?? .5)) <= .35);
+  const cmp = (f) => median(similar.map(f));
+  const idx = P.ws.indexOf(w), prev = P.ws[idx - 1], next = P.ws[idx + 1];
+  const zt = w.zones ? w.zones.reduce((a, b) => a + b, 0) : 0;
+
+  // Einordnung aus kombinierten Daten
+  const v = [];
+  if (w.zones) v.push(w.isHard ? `Harte Einheit: ${nf((w.zones[3] + w.zones[4]) / zt * 100)} % der Zeit in Z4–Z5.` : w.easyShare >= .8 ? `Saubere Grundlageneinheit: ${nf(w.easyShare * 100)} % in Z1–Z2.` : `Mischeinheit: ${nf(w.zones[2] / zt * 100)} % in Z3. Für Grundlage zu hart, für einen echten Reiz zu locker.`);
+  else if (w.avgHr) v.push(`Ø Puls bei ${nf(w.avgHr / w.hrMaxUsed * 100)} % deines Maximalpulses.`);
+  if (w.efRes != null) v.push(`Laufökonomie ${sg(w.efRes, 1)} % gegenüber deinem Trend${Math.abs(w.efRes) >= 3 ? (w.efRes > 0 ? ", ein klar guter Tag." : ", deutlich unter Normalform.") : "."}`);
+  const cond = [];
+  if (day.rhr && bR && day.rhr - bR.m >= Math.max(3, bR.spread)) cond.push(`erhöhtem Ruhepuls (${sg(day.rhr - bR.m)} bpm)`);
+  if (day.sleepMin && bS && day.sleepMin - bS.m <= -45) cond.push(`kurzer Nacht (${fmtH(day.sleepMin)})`);
+  if (w.tsbBefore != null && w.tsbBefore < -15) cond.push(`hoher Ermüdung (Form ${sg(w.tsbBefore)})`);
+  if (cond.length) v.push(`Gestartet mit ${cond.join(", ")}${w.efRes != null && w.efRes < -2 ? ", das erklärt die schwächere Ökonomie." : "."}`);
+  else if (day.rhr || day.sleepMin) v.push("Erholungswerte am Morgen waren normal.");
+  const simHr = cmp((x) => x.avgHr), simSpeed = cmp(speedOf);
+  if (similar.length >= 3 && w.avgHr && simHr && speedOf(w) && simSpeed) {
+    const dh = w.avgHr - simHr, dsp = (speedOf(w) / simSpeed - 1) * 100;
+    v.push(`Gegenüber dem Median von ${similar.length} ähnlichen Einheiten der letzten 6 Monate: ${sg(dsp, 1)} % Tempo bei ${sg(dh)} bpm Puls.`);
+  }
+
+  const kpi = (b, s) => `<div><b>${b}</b><span>${s}</span></div>`;
+  document.getElementById("view").innerHTML = `
+    <section>
+      <div class="kpis">
+        ${kpi(fmtDur(w.durationSec), "Dauer")}
+        ${kpi(w.distanceM ? nf(w.distanceM / 1000, 2) + " km" : "–", "Distanz")}
+        ${kpi(tempoTxt(w), isRun ? "Ø Pace" : "Ø Tempo")}
+        ${kpi(w.avgHr ? `${w.avgHr}` : "–", `Ø Puls${w.maxHr ? `, max ${w.maxHr}` : ""}`)}
+        ${kpi(nf(w.load), "Belastung")}
+        ${kpi(w.te ? nf(w.te, 1) : "–", "Trainingseffekt")}
+        ${w.ascentM ? kpi(nf(w.ascentM) + " m", "Anstieg") : ""}
+        ${isRun && w.cadence ? kpi(nf(w.cadence), "Kadenz (Schritte/min)") : ""}
+        ${w.vo2max ? kpi(nf(w.vo2max), "VO₂max") : ""}
+        ${w.kcal ? kpi(nf(w.kcal), "kcal") : ""}
+      </div>
+      <p class="verdict">${v.join(" ")}</p>
+    </section>
+    <section>
+      <div class="sechead"><h2>Pulsverlauf</h2></div>
+      ${w.hrSeries ? `<div class="chartbox tall"><canvas id="cHr" aria-label="Pulsverlauf über die Dauer der Einheit mit Pulszonen"></canvas></div>` : `<p class="muted">Kein Pulsverlauf für diese Einheit vorhanden${w.hrBins ? " (wird beim nächsten Sync nachgeladen)" : ""}.</p>`}
+    </section>
+    ${w.zones ? `<section><div class="sechead"><h2>Zeit in Zonen</h2></div><div class="chartbox"><canvas id="cWZones"></canvas></div></section>` : ""}
+    <section class="grid2">
+      <div>
+        <div class="sechead"><h2>Zustand am Tag</h2></div>
+        <div class="panel tablewrap"><table><thead><tr><th>Wert</th><th class="num">Am Tag</th><th class="num">Dein Basiswert</th></tr></thead><tbody>
+          <tr><td>Ruhepuls</td><td class="num">${day.rhr ? day.rhr + " bpm" : "–"}</td><td class="num">${bR ? nf(bR.m) + " bpm" : "–"}</td></tr>
+          <tr><td>Schlaf der Nacht davor</td><td class="num">${fmtH(day.sleepMin)}</td><td class="num">${bS ? fmtH(bS.m) : "–"}</td></tr>
+          <tr><td>Tiefschlaf</td><td class="num">${fmtH(day.deepMin)}</td><td class="num">–</td></tr>
+          <tr><td>Form vor der Einheit</td><td class="num">${sg(w.tsbBefore)}</td><td class="num">–</td></tr>
+        </tbody></table></div>
+      </div>
+      <div>
+        <div class="sechead"><h2>Ähnliche Einheiten</h2></div>
+        ${similar.length >= 3 ? `<div class="panel tablewrap"><table><thead><tr><th>Kennzahl</th><th class="num">Diese</th><th class="num">Median (${similar.length})</th></tr></thead><tbody>
+          <tr><td>${isRun ? "Pace" : "Tempo"}</td><td class="num">${tempoTxt(w)}</td><td class="num">${simSpeed ? (isRun ? fmtPace(1000 / simSpeed) + " /km" : nf(simSpeed * 3.6, 1) + " km/h") : "–"}</td></tr>
+          <tr><td>Ø Puls</td><td class="num">${w.avgHr ?? "–"}</td><td class="num">${nf(simHr)}</td></tr>
+          <tr><td>Belastung</td><td class="num">${nf(w.load)}</td><td class="num">${nf(cmp((x) => x.load))}</td></tr>
+          ${isRun ? `<tr><td>Ökonomie</td><td class="num">${nf(w.ef, 2)}</td><td class="num">${nf(cmp((x) => x.ef), 2)}</td></tr>` : ""}
+        </tbody></table><p class="note">Gleiche Sportart, ±30 % Dauer, ähnliche Intensität, letzte 6 Monate.</p></div>` : `<p class="muted">Zu wenige vergleichbare Einheiten.</p>`}
+      </div>
+    </section>
+    <nav class="pager" aria-label="Weitere Einheiten">
+      ${prev ? `<a href="#einheit/${prev.id}">‹ ${SPORTS[prev.sport].label}, ${fmtDate(prev.date)}</a>` : "<span></span>"}
+      ${next ? `<a href="#einheit/${next.id}">${SPORTS[next.sport].label}, ${fmtDate(next.date)} ›</a>` : "<span></span>"}
+    </nav>`;
+
+  const zb = P.hr.zoneBpm(fam);
+  if (w.hrSeries) {
+    const ser = w.hrSeries;
+    mk("cHr", {
+      type: "line",
+      data: { labels: ser.map(([t]) => t / 60), datasets: [{ label: "Puls", data: ser.map(([, h]) => h), borderColor: css("--neg"), borderWidth: 1.8, pointRadius: 0, tension: .2 }] },
+      options: baseOpts({
+        plugins: { legend: { display: false }, zoneBands: { bands: [0, 1, 2, 3, 4].map((i) => [zb[i], zb[i + 1], css(`--z${i + 1}`)]) },
+          tooltip: { callbacks: { title: (i) => `Minute ${nf(Number(i[0].label), 1)}`, label: (c) => `${c.parsed.y} bpm` } } },
+        scales: {
+          x: { type: "linear", title: ax("Minuten"), grid: { display: false }, ticks: { maxTicksLimit: 8, callback: (v) => nf(v) } },
+          y: { title: ax("Puls (bpm)"), suggestedMin: zb[0] - 10, suggestedMax: zb[5] },
+        },
+      }),
+    });
+  }
+  if (w.zones) {
+    mk("cWZones", {
+      type: "bar",
+      data: { labels: ZONES.map((z, i) => `${z} (${zb[i]}–${zb[i + 1]})`), datasets: [{ label: "Minuten", data: w.zones.map((s) => s / 60), backgroundColor: [1, 2, 3, 4, 5].map((i) => css(`--z${i}`)) }] },
+      options: baseOpts({ indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${nf(c.parsed.x, 1)} min (${nf(c.parsed.x * 60 / zt * 100)} %)` } } },
+        scales: { x: { title: ax("Minuten"), beginAtZero: true }, y: { title: ax("Zone (bpm)"), grid: { display: false } } } }),
+    });
+  }
+}
+
+// ---------- Fortschritt ----------
+function lastWeeks(n) { const w0 = weekKey(today()); return Array.from({ length: n }, (_, i) => addDays(w0, -7 * (n - 1 - i))); }
+function viewProgress() {
+  document.getElementById("view").innerHTML = `
+  <section><div class="sechead"><h2>Fitness, Ermüdung, Form</h2></div>
+    <p class="lead">Fitness = 42-Tage-Schnitt der Belastung, Ermüdung = 7-Tage-Schnitt, Form = Fitness − Ermüdung.</p>
+    <div class="chartbox tall"><canvas id="cForm"></canvas></div></section>
+  <section><div class="sechead"><h2>Umfang je Woche</h2>
+    <div class="seg" id="segVol" role="group" aria-label="Kennzahl"><button data-m="hours" aria-pressed="true">Stunden</button><button data-m="km" aria-pressed="false">km</button><button data-m="load" aria-pressed="false">Belastung</button></div></div>
+    <div class="chartbox"><canvas id="cVol"></canvas></div></section>
+  <div class="grid2">
+    <section><div class="sechead"><h2>Laufökonomie</h2></div><p class="lead">Meter pro Minute je Herzschlag. Steigt der Wert, läufst du bei gleichem Puls schneller.</p><div class="chartbox"><canvas id="cEF"></canvas></div></section>
+    <section><div class="sechead"><h2>VO₂max</h2></div><p class="lead">Schätzung der Uhr aus Läufen.</p><div class="chartbox"><canvas id="cVo2"></canvas></div></section>
+  </div>
+  <div class="grid2">
+    <section><div class="sechead"><h2>Intensitätsverteilung</h2></div><p class="lead" id="zoneSummary"></p><div class="chartbox"><canvas id="cZones"></canvas></div></section>
+    <section><div class="sechead"><h2>Fitness und Ruhepuls</h2></div><p class="lead">Steigt die Fitness bei sinkendem Ruhepuls, schlägt das Training an.</p><div class="chartbox"><canvas id="cFitRhr"></canvas></div></section>
+  </div>`;
+  const s = P.series.slice(-120);
+  mk("cForm", {
+    data: { labels: s.map((d) => fmtDate(d.date)), datasets: [
+      { type: "bar", label: "Form", data: s.map((d) => d.tsb), backgroundColor: s.map((d) => d.tsb >= 0 ? css("--pos") : css("--neg")), order: 3 },
+      { type: "line", label: "Fitness", data: s.map((d) => d.ctl), borderColor: css("--fit"), borderWidth: 2.5, pointRadius: 0, tension: .3, order: 1 },
+      { type: "line", label: "Ermüdung", data: s.map((d) => d.atl), borderColor: css("--fatigue"), borderWidth: 1.5, pointRadius: 0, tension: .3, order: 2 },
+    ] },
+    options: baseOpts({ scales: { x: { title: ax("Datum"), grid: { display: false }, ticks: { maxTicksLimit: 7 } }, y: { title: ax("Belastungspunkte (TRIMP)") } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${nf(c.parsed.y)}` } } } }),
+  });
+  drawVolume("hours");
+  document.querySelectorAll("#segVol button").forEach((b) => b.onclick = () => { document.querySelectorAll("#segVol button").forEach((x) => x.setAttribute("aria-pressed", x === b)); drawVolume(b.dataset.m); });
+
+  const runs = P.ws.filter((w) => w.ef).slice(-60), ef = runs.map((w) => w.ef);
+  const roll = ef.map((_, i) => mean(ef.slice(Math.max(0, i - 4), i + 1)));
+  mk("cEF", {
+    data: { labels: runs.map((w) => fmtDate(w.date)), datasets: [
+      { type: "line", label: "Trend (5 Läufe)", data: roll, borderColor: css("--run"), borderWidth: 2.5, pointRadius: 0, tension: .3 },
+      { type: "scatter", label: "Lauf", data: ef, backgroundColor: css("--run") + "88", pointRadius: 3.5 },
+      { type: "line", label: "Pace", data: runs.map(paceOf), yAxisID: "y2", borderColor: css("--muted"), borderDash: [4, 4], borderWidth: 1, pointRadius: 0, tension: .3 },
+    ] },
+    options: baseOpts({ scales: { x: { title: ax("Lauf (Datum)"), grid: { display: false }, ticks: { maxTicksLimit: 6 } }, y: { title: ax("Ökonomie (m/min je bpm)"), ticks: { callback: (v) => nf(v, 2) } },
+      y2: { position: "right", reverse: true, grid: { display: false }, title: ax("Pace (min/km)"), ticks: { callback: (v) => fmtPace(v) } } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => c.dataset.yAxisID === "y2" ? `Pace: ${fmtPace(c.parsed.y)} /km` : `${c.dataset.label}: ${nf(c.parsed.y, 2)}` } } } }),
+  });
+  const vo = P.ws.filter((w) => w.vo2max).slice(-80);
+  mk("cVo2", { type: "line", data: { labels: vo.map((w) => fmtDate(w.date)), datasets: [{ label: "VO₂max", data: vo.map((w) => w.vo2max), borderColor: css("--ride"), borderWidth: 2.5, pointRadius: 2, tension: .3 }] },
+    options: baseOpts({ plugins: { legend: { display: false } }, scales: { x: { title: ax("Lauf (Datum)"), grid: { display: false }, ticks: { maxTicksLimit: 6 } }, y: { title: ax("VO₂max (ml/kg/min)") } } }) });
+
+  const weeks = lastWeeks(12), per = {};
+  for (const w of P.ws) if (w.zones) { const a = per[weekKey(w.date)] ||= [0, 0, 0, 0, 0]; w.zones.forEach((x, i) => a[i] += x); }
+  const rc = I.rec;
+  document.getElementById("zoneSummary").textContent = rc.easyShare != null ? `Letzte 8 Wochen: ${nf(rc.easyShare)} % locker (Z1–Z2), ${nf(rc.hardShare)} % hart (Z4–Z5). Richtwert rund 80 % locker.` : "Noch keine Pulsverläufe importiert.";
+  mk("cZones", { type: "bar", data: { labels: weeks.map((w) => fmtDate(w)), datasets: ZONES.map((z, i) => ({ label: z, backgroundColor: css(`--z${i + 1}`), stack: "z",
+      data: weeks.map((w) => { const a = per[w], t = a ? a.reduce((x, y) => x + y, 0) : 0; return t ? a[i] / t * 100 : 0; }) })) },
+    options: baseOpts({ scales: { x: { stacked: true, title: ax("Woche ab"), grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } }, y: { stacked: true, max: 100, title: ax("Anteil der Trainingszeit"), ticks: { callback: (v) => v + " %" } } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${nf(c.parsed.y)} %` } } } }) });
+
+  const w26 = lastWeeks(26);
+  mk("cFitRhr", { type: "line", data: { labels: w26.map((w) => fmtDate(w)), datasets: [
+      { label: "Fitness", data: w26.map((w) => P.byDate[[addDays(w, 6), today()].sort()[0]]?.ctl ?? null), borderColor: css("--fit"), borderWidth: 2.5, pointRadius: 0, tension: .3, yAxisID: "y" },
+      { label: "Ruhepuls (Wochenmedian)", data: w26.map((w) => median([...Array(7)].map((_, i) => P.days[addDays(w, i)]?.rhr))), borderColor: css("--neg"), borderWidth: 2, pointRadius: 2, spanGaps: true, tension: .3, yAxisID: "y2" },
+    ] },
+    options: baseOpts({ scales: { x: { title: ax("Woche ab"), grid: { display: false }, ticks: { maxTicksLimit: 7 } }, y: { title: ax("Fitness (TRIMP)") }, y2: { position: "right", grid: { display: false }, title: ax("Ruhepuls (bpm)") } } }) });
+}
+function drawVolume(metric) {
+  charts.cVol?.destroy();
+  const weeks = lastWeeks(16), agg = {};
+  for (const w of P.ws) { const a = (agg[weekKey(w.date)] ||= {}); const s = a[w.sport] ||= { sec: 0, m: 0, load: 0 }; s.sec += w.durationSec; s.m += w.distanceM || 0; s.load += w.load; }
+  const val = (s) => !s ? 0 : metric === "hours" ? s.sec / 3600 : metric === "km" ? s.m / 1000 : s.load;
+  const [unit, title] = { hours: ["h", "Stunden"], km: ["km", "Kilometer"], load: ["", "Belastungspunkte (TRIMP)"] }[metric];
+  mk("cVol", { type: "bar", data: { labels: weeks.map((w) => fmtDate(w)), datasets: Object.keys(SPORTS).filter((k) => P.ws.some((w) => w.sport === k)).map((k) => ({ label: SPORTS[k].label, data: weeks.map((w) => val(agg[w]?.[k])), backgroundColor: css(SPORTS[k].color), stack: "s" })) },
+    options: baseOpts({ scales: { x: { stacked: true, title: ax("Woche ab"), grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } }, y: { stacked: true, title: ax(title) } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { title: (i) => `Woche ab ${i[0].label}`, label: (c) => `${c.dataset.label}: ${nf(c.parsed.y, metric === "load" ? 0 : 1)} ${unit}` } } } }) });
+}
+
+// ---------- Analyse ----------
+function viewAnalysis() {
+  document.getElementById("view").innerHTML = `
+  <section><div class="sechead"><h2>Zusammenhänge</h2></div>
+    <p class="lead">Automatisch aus deinen Daten. „Belastbar“: Unterschied mit rund 95 % Sicherheit kein Zufall.</p>
+    ${I.out.length ? `<ul class="insights">${I.out.map((x) => `<li class="${x.cls}"><h3>${x.title}</h3><p>${x.text}</p><small>${x.meta}</small></li>`).join("")}</ul>` : `<p class="muted">Noch zu wenig Daten. Zusammenhänge erscheinen ab 4–5 Fällen je Vergleichsgruppe.</p>`}
+  </section>
+  <section><div class="sechead"><h2>Belastung und Ruhepuls</h2></div><p class="lead">Letzte 60 Tage. Die gestrichelte Linie ist dein 30-Tage-Basiswert.</p><div class="chartbox tall"><canvas id="cDaily"></canvas></div></section>
+  <section><div class="sechead"><h2>Schlaf</h2></div><p class="lead">Datum = Morgen nach der Nacht.</p><div class="chartbox"><canvas id="cSleep"></canvas></div></section>
+  <div class="grid2">
+    <section><div class="sechead"><h2>Ruhepuls nach harten Tagen</h2></div><p class="lead">Abweichung vom Basiswert in den Nächten nach den härtesten 20 % deiner Trainingstage, verglichen mit Ruhetagen.</p><div class="chartbox"><canvas id="cRecovery"></canvas></div></section>
+    <section><div class="sechead"><h2>Was deine Laufökonomie beeinflusst</h2></div><p class="lead">Ökonomie relativ zu deinem Trend, je nach Zustand am Lauftag. In Klammern: Anzahl Läufe.</p><div class="chartbox" id="condBox"><canvas id="cCond"></canvas></div></section>
+  </div>`;
+  const s = P.series.slice(-60), labels = s.map((d) => fmtDate(d.date));
+  mk("cDaily", { data: { labels, datasets: [
+      { type: "bar", label: "Belastung", data: s.map((d) => d.load || null), backgroundColor: css("--fatigue"), yAxisID: "y", order: 3 },
+      { type: "line", label: "Ruhepuls", data: s.map((d) => P.days[d.date]?.rhr ?? null), borderColor: css("--neg"), borderWidth: 2, pointRadius: 2, spanGaps: true, tension: .25, yAxisID: "y2", order: 1 },
+      { type: "line", label: "Basiswert", data: s.map((d) => baseline(P.days, d.date, "rhr")?.m ?? null), borderColor: css("--muted"), borderDash: [5, 4], borderWidth: 1, pointRadius: 0, spanGaps: true, yAxisID: "y2", order: 2 },
+    ] },
+    options: baseOpts({ scales: { x: { title: ax("Datum"), grid: { display: false }, ticks: { maxTicksLimit: 8 } }, y: { title: ax("Belastung (TRIMP)"), beginAtZero: true }, y2: { position: "right", grid: { display: false }, title: ax("Ruhepuls (bpm)") } } }) });
+  const deep = s.map((d) => P.days[d.date]?.deepMin ?? null), sl = s.map((d) => P.days[d.date]?.sleepMin ?? null);
+  mk("cSleep", { data: { labels, datasets: [
+      { type: "bar", label: "Tiefschlaf", data: deep.map((v) => v && v / 60), backgroundColor: css("--indoor"), stack: "s", order: 2 },
+      { type: "bar", label: "Übriger Schlaf", data: sl.map((v, i) => v && (v - (deep[i] || 0)) / 60), backgroundColor: css("--z1"), stack: "s", order: 3 },
+      { type: "line", label: "Basiswert", data: s.map((d) => { const b = baseline(P.days, d.date, "sleepMin"); return b ? b.m / 60 : null; }), borderColor: css("--ink"), borderDash: [5, 4], borderWidth: 1, pointRadius: 0, spanGaps: true, order: 1 },
+    ] },
+    options: baseOpts({ scales: { x: { stacked: true, title: ax("Datum"), grid: { display: false }, ticks: { maxTicksLimit: 8 } }, y: { stacked: true, title: ax("Schlaf (Stunden)") } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmtH(c.parsed.y * 60)}` } } } }) });
+  const rc = I.rec, ctrl = mean(rc.ctrl);
+  mk("cRecovery", { data: { labels: ["1. Nacht", "2. Nacht", "3. Nacht"].map((l, i) => `${l} (${rc.hard[i].length})`), datasets: [
+      { type: "bar", label: "Nach hartem Tag", data: rc.hard.map((a) => mean(a)), backgroundColor: css("--neg") },
+      { type: "line", label: `Nach Ruhetag (${rc.ctrl.length})`, data: [ctrl, ctrl, ctrl], borderColor: css("--ink"), borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0 },
+    ] },
+    options: baseOpts({ scales: { x: { title: ax("Nacht nach dem harten Tag (Anzahl)"), grid: { display: false } }, y: { title: ax("Abweichung vom Basiswert (bpm)") } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${sg(c.parsed.y, 1)} bpm` } } } }) });
+  const c = I.cond;
+  if (!c.length) document.getElementById("condBox").innerHTML = `<p class="muted">Noch zu wenig Läufe mit Schlaf- und Ruhepulsdaten.</p>`;
+  else mk("cCond", { type: "bar", data: { labels: c.map(([l, , n]) => `${l} (${n})`), datasets: [{ label: "Ökonomie vs. Trend", data: c.map(([, x]) => x), backgroundColor: c.map(([, x]) => x >= 0 ? css("--pos") : css("--neg")) }] },
+    options: baseOpts({ indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: { label: (x) => `${sg(x.parsed.x, 1)} %` } } },
+      scales: { x: { title: ax("Laufökonomie gegenüber Trend (%)"), ticks: { callback: (v) => sg(v) + " %" } }, y: { title: ax("Zustand am Lauftag"), grid: { display: false } } } }) });
+}
+
+function renderMeta(meta, demo) {
+  const info = document.getElementById("syncinfo"), banner = document.getElementById("banner");
+  if (demo) { info.textContent = "Beispieldaten"; return; }
+  if (!meta) { info.textContent = "Noch kein Sync"; return; }
+  info.innerHTML = meta.lastSuccess ? `Sync<br>${new Date(meta.lastSuccess).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : "Noch kein Sync";
+  const msgs = [];
+  if (meta.error === "token") msgs.push("Der Zepp-Token ist abgelaufen. Neues <code>apptoken</code> in Netlify unter ZEPP_APP_TOKEN hinterlegen, neu deployen und <code>/api/sync?key=…</code> aufrufen.");
+  else if (meta.error) msgs.push(`Letzter Sync fehlgeschlagen: ${meta.error}`);
+  if (meta.daysError) msgs.push(`Schlaf- und Ruhepulsdaten konnten nicht geladen werden: ${meta.daysError}`);
+  if (!meta.error && meta.detailsPending > 0) msgs.push(`Pulsverläufe werden noch importiert, ${meta.detailsPending} Einheiten ausstehend.`);
+  banner.innerHTML = msgs.map((m) => `<div class="banner">${m}</div>`).join("");
+}
+
+// ================= Beispieldaten =================
+function demoData() {
+  const ws = [], days = {}; const now = Date.now() / 1000; let id = 1, carry = 0;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  for (let d = 220; d >= 0; d--) {
+    const t = now - d * 86400, date = dayKey(new Date(t * 1000)), wd = new Date(t * 1000).getDay(), prog = (220 - d) / 220;
+    const sleep = Math.round(rnd(330, 500)), rhr = Math.round(56 - prog * 4 + carry * 4 + rnd(-1.5, 1.5));
+    days[date] = { rhr, sleepMin: sleep, deepMin: Math.round(sleep * rnd(.15, .25)), remMin: Math.round(sleep * .2), awakeMin: 15, sleepScore: 75, steps: 8000 };
+    const plan = { 2: ["1", 45], 4: ["10", 60], 6: ["9", 120], 0: ["1", 80], 3: ["1", 40] }[wd];
+    carry = Math.max(0, carry - .6);
+    if (!plan || Math.random() < .15) continue;
+    const [type, min] = plan, dur = min * 60 * rnd(.8, 1.25), isRun = type === "1";
+    const hard = Math.random() < .3, avg = Math.round(hard ? rnd(150, 165) : rnd(112, 126));
+    if (hard || min >= 80) carry += 1;
+    const penalty = (sleep < 380 ? .05 : 0) + (rhr > 56 - prog * 4 + 2 ? .03 : 0);
+    const speed = isRun ? (150 + prog * 20) * (avg / 140) * (1 - penalty) * rnd(.97, 1.03) : 430 + prog * 40;
+    const bins = {}, series = [];
+    for (let s = 0; s < dur; s += 15) {
+      const warm = Math.min(1, s / 600), interval = hard && s > 900 && s < dur - 600 ? (Math.floor(s / 240) % 2 ? 12 : -6) : 0;
+      const hr = Math.round(95 + (avg - 95) * warm + interval + rnd(-4, 4));
+      series.push([s, hr]); const b = Math.floor(hr / 5) * 5; bins[b] = (bins[b] || 0) + 15;
+    }
+    ws.push({ id: String(id++), type, start: t - 3600, durationSec: dur, distanceM: type === "10" ? null : speed * dur / 60, avgHr: avg,
+      maxHr: Math.min(isRun ? 186 : 178, Math.max(...series.map((x) => x[1]))), ascentM: type === "10" ? null : Math.round(rnd(20, 400)), cadence: isRun ? Math.round(rnd(162, 176)) : null,
+      paceSecKm: isRun ? 60000 / speed : null, vo2max: isRun ? Math.round(46 + prog * 3 + rnd(-1, 1)) : null, te: rnd(2, 4.2), kcal: Math.round(dur / 60 * 11), hrBins: bins, hrSeries: series });
+  }
+  return { demo: true, meta: null, days, workouts: ws };
+}
+
+// ================= Start =================
+function compute() {
+  P = prepare(DATA);
+  if (!P.ws.length) return;
+  R = readiness(P); I = buildInsights(P); REC = recommend(P, R, I);
+}
+function applyChartDefaults() {
+  Chart.defaults.font.family = "Barlow, system-ui, sans-serif";
+  Chart.defaults.color = css("--muted");
+  Chart.defaults.borderColor = css("--line");
+}
+async function init() {
+  Chart.register(zoneBandsPlugin);
+  applyChartDefaults();
+  document.getElementById("back").onclick = () => { location.hash = "#einheiten"; };
+  if (new URLSearchParams(location.search).has("demo")) DATA = demoData();
+  else {
+    try { const r = await fetch("/api/data"); if (!r.ok) throw new Error(`HTTP ${r.status}`); DATA = await r.json(); }
+    catch (e) { document.getElementById("view").innerHTML = `<div class="empty"><h2>Daten nicht erreichbar</h2><p class="muted">/api/data antwortet nicht (${e.message}). Prüfe im Netlify-Log die Function <code>data</code>.</p></div>`; return; }
+  }
+  renderMeta(DATA.meta, DATA.demo);
+  compute();
+  window.addEventListener("hashchange", route);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { applyChartDefaults(); route(); });
+  route();
+}
+init();
+</script>
+</body>
+</html>
