@@ -46,6 +46,15 @@ button{font:inherit;color:inherit}
 .appbar .back{display:none;border:0;background:none;padding:6px 8px 6px 0;cursor:pointer;font-size:1rem;font-weight:500}
 .appbar.detail .back{display:inline-flex;align-items:center;gap:4px}
 #syncinfo{font-size:.78rem;text-align:right;line-height:1.25}
+.syncbtn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:10px;padding:5px 8px 5px 10px;cursor:pointer}
+.syncbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex:none}
+.syncbtn.busy svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+dialog{border:0;border-radius:14px;padding:20px;background:var(--surface);color:var(--ink);max-width:min(92vw,380px)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+dialog input{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;margin:12px 0;background:var(--bg);color:var(--ink)}
+.dlgbtn{display:flex;justify-content:flex-end;gap:8px}
+.dlgbtn button:not(.btn){background:none;border:0;color:var(--muted);cursor:pointer;padding:9px 12px}
 main{max-width:1100px;margin:0 auto;padding:18px 16px calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 28px)}
 .banner{background:var(--warn-bg);color:var(--warn-ink);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:.9rem}
 
@@ -202,8 +211,14 @@ td.num,th.num{text-align:right}
 <header class="appbar" id="appbar">
   <button class="back" id="back" aria-label="Zurück zur Liste">‹ Einheiten</button>
   <h1 id="title">Heute</h1>
-  <p id="syncinfo" class="muted"></p>
+  <button id="syncBtn" class="syncbtn" type="button" aria-label="Daten jetzt synchronisieren"><span id="syncinfo"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
 </header>
+<dialog id="keyDlg"><form method="dialog">
+  <h3>Sync-Schlüssel</h3>
+  <p class="muted small">Der Wert von SYNC_KEY aus Netlify. Er wird nur auf diesem Gerät gespeichert.</p>
+  <input id="keyInput" type="password" autocomplete="off" required>
+  <div class="dlgbtn"><button value="cancel" formnovalidate>Abbrechen</button><button value="ok" class="btn">Speichern</button></div>
+</form></dialog>
 <main><div id="banner"></div><div id="view" class="view"></div></main>
 <nav class="tabs" aria-label="Bereiche">
   <a href="#heute" data-tab="heute"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Heute</a>
@@ -692,15 +707,15 @@ const EX = {
     props: [{ type: "band", from: ["k1", "a1", .8], to: ["k2", "a2", .8] }],
   },
   dead_bug: {
-    name: "Dead Bug", cat: "Stabilität", equip: ["Matte"], target: "Tiefe Bauchmuskulatur, Kontrolle der Hüftbeuger", anim: "rep", tempo: 3,
+    name: "Dead Bug", cat: "Stabilität", equip: ["Matte"], target: "Tiefe Bauchmuskulatur, Kontrolle der Hüftbeuger", anim: "rep", tempo: 4,
     cues: ["Rückenlage, Arme zur Decke, Hüfte und Knie 90° gebeugt", "Unterer Rücken bleibt auf der Matte", "Gegengleich Arm und Bein langsam strecken, dabei ausatmen, zurück, Seite wechseln"],
-    avoid: "Nicht ins Hohlkreuz, lieber das Bein weniger weit strecken",
+    avoid: "Hebt sich der untere Rücken, das Bein nur halb strecken oder die Ferse zum Boden tippen",
     A: { h: [56, 114], s: [70, 118], p: [118, 120], e1: [72, 92], w1: [74, 68], e2: [74, 92], w2: [76, 68], k1: [120, 86], a1: [152, 86], t1: [160, 80], k2: [122, 88], a2: [154, 88], t2: [162, 82] },
     B: { e1: [48, 108], w1: [26, 110], k2: [155, 110], a2: [190, 116], t2: [196, 108] },
   },
   side_plank: {
     name: "Seitstütz", cat: "Stabilität", equip: ["Matte"], target: "Seitliche Rumpfmuskulatur, Gluteus medius", anim: "hold", sides: true,
-    cues: ["Ellbogen genau unter der Schulter", "Hüfte hoch, Körper von Kopf bis Fuß in einer Linie", "Ruhig weiteratmen"],
+    cues: ["Ellbogen genau unter der Schulter", "Hüfte hoch, Körper von Kopf bis Fuß in einer Linie", "Ruhig weiteratmen. Sackt die Hüfte ab, lieber früher beenden"],
     avoid: "Hüfte nicht absinken oder nach hinten kippen lassen",
     A: { h: [60, 94], s: [72, 102], p: [122, 112], e1: [95, 96], w1: [112, 108], e2: [70, 128], w2: [50, 128], k1: [160, 120], a1: [196, 126], t1: [200, 120], k2: [160, 122], a2: [196, 128], t2: [201, 124] },
     B: { h: [60, 92], s: [72, 100], p: [122, 103], e1: [95, 90], w1: [112, 100], k1: [160, 114], k2: [160, 116] },
@@ -713,55 +728,155 @@ const EX = {
     B: { k1: [150, 62], a1: [152, 94], t1: [164, 96] },
     props: [{ type: "band", from: ["t1"], to: ["t2"] }],
   },
+  single_leg_bridge: {
+    name: "Einbeinige Glute Bridge", cat: "Kraft", equip: ["Matte"], target: "Gluteus maximus und medius einseitig, Beckenstabilität", anim: "rep", tempo: 3.5, sides: true,
+    cues: ["Ein Fuß aufgestellt, das andere Bein gestreckt auf Kniehöhe", "Becken bleibt waagerecht, nicht zur freien Seite absinken", "Über die Ferse hochdrücken, oben 1 s halten, langsam absenken"],
+    avoid: "Nicht ins Hohlkreuz, lieber weniger hoch und sauber",
+    A: { h: [55, 118], s: [70, 122], p: [120, 122], e1: [92, 127], w1: [115, 128], e2: [94, 127], w2: [117, 128], k1: [152, 100], a1: [186, 90], t1: [190, 82], k2: [150, 94], a2: [166, 126], t2: [178, 127] },
+    B: { s: [72, 122], p: [124, 94], e1: [94, 127], w1: [117, 128], e2: [96, 127], w2: [119, 128], k1: [160, 84], a1: [196, 74], t1: [199, 66], k2: [158, 88] },
+  },
+  bird_dog: {
+    name: "Bird Dog", cat: "Stabilität", equip: ["Matte"], target: "Rückenstrecker, Gesäß, Rumpfkontrolle", anim: "rep", tempo: 4, sides: true,
+    cues: ["Vierfüßlerstand, Hände unter den Schultern, Knie unter der Hüfte", "Rücken neutral wie ein Tisch, Bauch leicht fest", "Gegengleich Arm und Bein lang machen, 2 s halten, kontrolliert zurück"],
+    avoid: "Bein nur bis zur Waagerechten, sonst kippt das Becken ins Hohlkreuz",
+    A: { h: [66, 80], s: [80, 86], p: [140, 86], e1: [80, 108], w1: [80, 128], e2: [84, 108], w2: [84, 128], k1: [142, 127], a1: [176, 128], t1: [182, 124], k2: [138, 127], a2: [172, 128], t2: [178, 124] },
+    B: { e1: [56, 82], w1: [34, 80], k2: [176, 88], a2: [210, 90], t2: [216, 84] },
+  },
+  cat_cow: {
+    name: "Katze-Kuh", cat: "Mobilität", equip: ["Matte"], target: "Beweglichkeit der gesamten Wirbelsäule", anim: "rep", tempo: 5,
+    cues: ["Vierfüßlerstand", "Einatmen: Brustbein nach vorne, Blick leicht nach vorne", "Ausatmen: Rücken Wirbel für Wirbel rund machen"],
+    avoid: "Nur im schmerzfreien Bereich, am unteren Rücken klein bleiben",
+    A: { h: [64, 72], s: [80, 84], m: [110, 94], p: [140, 84], e1: [80, 108], w1: [80, 128], e2: [84, 108], w2: [84, 128], k1: [142, 127], a1: [176, 128], t1: [182, 124], k2: [138, 127], a2: [172, 128], t2: [178, 124] },
+    B: { h: [72, 98], s: [82, 88], m: [110, 70], p: [140, 88] },
+  },
+  open_book: {
+    name: "Open Book (Rotation in Seitenlage)", cat: "Mobilität", equip: ["Matte"], target: "Brustwirbelsäule, Brustmuskel", anim: "rep", tempo: 5, sides: true,
+    cues: ["Seitenlage, Hüfte und Knie 90° gebeugt, Arme gestreckt übereinander", "Knie bleiben aufeinander liegen", "Oberen Arm im Bogen öffnen, dem Arm mit dem Blick folgen, ausatmen"],
+    avoid: "Die Drehung kommt aus dem Brustkorb, nicht aus dem unteren Rücken",
+    A: { h: [58, 106], s: [72, 112], p: [120, 112], e1: [74, 124], w1: [78, 128], e2: [70, 126], w2: [74, 129], k1: [142, 112], a1: [172, 118], t1: [182, 116], k2: [140, 122], a2: [172, 124], t2: [182, 122] },
+    B: { h: [60, 102], e1: [68, 86], w1: [58, 64] },
+  },
+  roll_thoracic: {
+    name: "Brustwirbelsäule auf der Faszienrolle", cat: "Mobilität", equip: ["Faszienrolle", "Matte"], target: "Streckung der Brustwirbelsäule gegen die Rundrücken-Haltung", anim: "rep", tempo: 5,
+    cues: ["Rolle quer unter den Schulterblättern, Po am Boden, Hände stützen den Kopf", "Ausatmen und den oberen Rücken über die Rolle nach hinten sinken lassen", "Nach 3–4 Wiederholungen die Rolle eine Handbreit höher legen"],
+    avoid: "Nicht unter den unteren Rücken legen und nicht die Lendenwirbelsäule rollen",
+    A: { h: [62, 98], s: [78, 106], p: [132, 124], e1: [70, 84], w1: [62, 96], e2: [72, 86], w2: [64, 98], k1: [160, 96], a1: [172, 127], t1: [184, 128], k2: [158, 98], a2: [170, 127], t2: [182, 128] },
+    B: { h: [56, 112], s: [74, 110], e1: [62, 94], w1: [56, 108], e2: [64, 96], w2: [58, 110] },
+    props: [{ type: "roller", a: [92, 120], b: [92, 120] }],
+  },
+  leg_swing_front: {
+    name: "Beinpendel vor und zurück", cat: "Aufwärmen", equip: ["Wand"], target: "Hüftbeuger und Gesäß dynamisch", anim: "rep", tempo: 1.6, sides: true,
+    cues: ["Seitlich an die Wand stützen, aufrecht stehen", "Bein locker vor und zurück pendeln, Amplitude langsam steigern", "Oberkörper bleibt ruhig"],
+    avoid: "Nicht aktiv ins Hohlkreuz schwingen",
+    A: { h: [120, 14], s: [118, 28], p: [118, 72], e1: [132, 50], w1: [124, 70], e2: [108, 50], w2: [102, 66], k1: [106, 98], a1: [88, 122], t1: [80, 118], k2: [118, 100], a2: [118, 128], t2: [130, 129] },
+    B: { k1: [142, 94], a1: [164, 110], t1: [172, 104] },
+  },
+  leg_swing_side: {
+    name: "Beinpendel seitlich", cat: "Aufwärmen", equip: ["Wand"], target: "Hüftabduktoren und Adduktoren dynamisch", anim: "rep", tempo: 1.6, sides: true, front: true,
+    cues: ["Mit beiden Händen an der Wand abstützen", "Bein vor dem Standbein seitlich hin und her pendeln", "Becken bleibt gerade"],
+    avoid: "Nicht aus dem Rumpf mitschwingen",
+    A: { h: [120, 16], s: [120, 30], p: [120, 72], e1: [104, 50], w1: [110, 68], e2: [142, 48], w2: [160, 56], k1: [124, 100], a1: [130, 126], t1: [124, 129], k2: [128, 100], a2: [132, 128], t2: [138, 129] },
+    B: { k1: [98, 96], a1: [76, 114], t1: [70, 111] },
+    props: [{ type: "wall", x: 164 }],
+  },
+  lunge_reach: {
+    name: "Ausfallschritt mit Armheben", cat: "Aufwärmen", equip: [], target: "Hüftbeuger dynamisch dehnen, Beinachse", anim: "rep", tempo: 4, sides: true,
+    cues: ["Großer Schritt nach vorne, hinteres Knie Richtung Boden", "Beide Arme nach oben strecken, Po des hinteren Beins anspannen", "Zurück in den Stand"],
+    avoid: "Vorderes Knie bleibt über dem Fuß, kein Hohlkreuz",
+    A: { h: [120, 14], s: [118, 28], p: [118, 72], e1: [124, 50], w1: [124, 72], e2: [112, 50], w2: [112, 72], k1: [120, 100], a1: [118, 128], t1: [130, 129], k2: [118, 100], a2: [118, 128], t2: [130, 129] },
+    B: { h: [124, 32], s: [122, 46], p: [120, 90], e1: [128, 22], w1: [132, -2], e2: [124, 22], w2: [128, -2], k1: [150, 98], a1: [152, 128], t1: [164, 129], k2: [100, 116], a2: [76, 118], t2: [68, 128] },
+  },
+  march_knee: {
+    name: "Kniehub im Stand", cat: "Aufwärmen", equip: [], target: "Hüftbeuger aktivieren, Laufhaltung", anim: "rep", tempo: 1.2,
+    cues: ["Aufrecht stehen, Blick nach vorne", "Knie abwechselnd bis Hüfthöhe heben, Arme schwingen gegengleich", "Leicht auf dem Vorfuß bleiben"],
+    avoid: "Nicht nach hinten lehnen",
+    A: { h: [120, 14], s: [118, 28], p: [118, 72], e1: [110, 50], w1: [104, 66], e2: [128, 50], w2: [140, 40], k1: [120, 100], a1: [118, 128], t1: [130, 129], k2: [118, 100], a2: [118, 128], t2: [130, 129] },
+    B: { e1: [128, 50], w1: [140, 40], e2: [110, 50], w2: [104, 66], k1: [150, 64], a1: [152, 96], t1: [164, 98] },
+  },
+  calf_raise: {
+    name: "Wadenheben", cat: "Aufwärmen", equip: [], target: "Waden und Achillessehne", anim: "rep", tempo: 2,
+    cues: ["Hüftbreiter Stand, bei Bedarf an der Wand abstützen", "Langsam auf die Zehenspitzen, oben kurz halten", "Kontrolliert absenken"],
+    avoid: "Nicht über die Außenkante rollen",
+    A: { h: [120, 14], s: [118, 28], p: [118, 72], e1: [124, 50], w1: [124, 72], e2: [112, 50], w2: [112, 72], k1: [120, 100], a1: [118, 128], t1: [130, 129], k2: [118, 100], a2: [118, 128], t2: [130, 129] },
+    B: { h: [120, 6], s: [118, 20], p: [118, 64], e1: [124, 42], w1: [124, 64], e2: [112, 42], w2: [112, 64], k1: [120, 92], a1: [120, 120], k2: [118, 92], a2: [120, 120] },
+  },
 };
 
+// Anpassung an das persönliche Profil (Assessment 27.04.2026):
+// linke Seite schwächer (einbeinige Bridge L 2 / R 4, seitliches Beinheben links schwächer) -> links zuerst und Zusatzsatz links.
+// Wirbelsäule global steif, Rundrücken-Tendenz -> eigenes Mobilitätsprogramm für die Brustwirbelsäule.
+// Rücken reagiert auf schnelle oder lange Läufe -> Rumpf nach McGill-Prinzip (Bird Dog, Seitstütz, Dead Bug), keine Rumpfbeugen, LWS nicht rollen.
+const PROFILE = { weakSide: "links", note: "Angepasst an dein Assessment vom 27.04.2026: links zuerst und mit Zusatzsatz, Rumpfübungen ohne Beugebelastung für die Lendenwirbelsäule." };
 const ROUTINES = [
+  { id: "warmup", name: "Lauf-Warm-up", focus: "Hüfte mobilisieren und aktivieren", when: "direkt vor dem Laufen", restEx: 8, restSet: 8, items: [
+    { ex: "leg_swing_front", mode: "time", sec: 30 },
+    { ex: "leg_swing_side", mode: "time", sec: 30 },
+    { ex: "lunge_reach", mode: "reps", reps: 5 },
+    { ex: "lateral_walk", mode: "time", sec: 30 },
+    { ex: "march_knee", mode: "time", sec: 30 },
+    { ex: "calf_raise", mode: "reps", reps: 12 },
+  ] },
+  { id: "stabil", name: "Hüfte stabil", focus: "Kraft und Stabilität, Schwerpunkt linke Seite", when: "2–3 Mal pro Woche an Ruhe- oder Grundlagentagen", items: [
+    { ex: "dead_bug", mode: "reps", reps: 8, sets: 2 },
+    { ex: "bird_dog", mode: "reps", reps: 6, sets: 2 },
+    { ex: "bridge_band", mode: "reps", reps: 12, sets: 2 },
+    { ex: "single_leg_bridge", mode: "reps", reps: 5, sets: 2, extraLeft: 1 },
+    { ex: "side_leg_raise", mode: "reps", reps: 12, sets: 2, extraLeft: 1 },
+    { ex: "clamshell", mode: "reps", reps: 15, sets: 2, extraLeft: 1 },
+    { ex: "side_plank", mode: "time", sec: 30, sets: 2 },
+    { ex: "knee_drive_band", mode: "reps", reps: 10, sets: 2 },
+  ] },
+  { id: "ruecken", name: "Rücken mobil", focus: "Brustwirbelsäule und Haltung", when: "an Bürotagen, gern abends", items: [
+    { ex: "cat_cow", mode: "reps", reps: 8, sets: 2 },
+    { ex: "open_book", mode: "reps", reps: 6, sets: 2 },
+    { ex: "roll_thoracic", mode: "reps", reps: 8 },
+    { ex: "hipflexor_stretch", mode: "time", sec: 45 },
+  ] },
   { id: "loesen", name: "Hüfte lösen", focus: "Faszien und Dehnung", when: "nach langen Einheiten und an lockeren Tagen", items: [
     { ex: "roll_tfl", mode: "time", sec: 60 },
     { ex: "roll_quad", mode: "time", sec: 60 },
     { ex: "hipflexor_stretch", mode: "time", sec: 45, sets: 2 },
   ] },
-  { id: "stabil", name: "Hüfte stabil", focus: "Kraft und Stabilität", when: "2–3 Mal pro Woche an Ruhe- oder Grundlagentagen", items: [
-    { ex: "bridge_band", mode: "reps", reps: 12, sets: 2 },
-    { ex: "clamshell", mode: "reps", reps: 15, sets: 2 },
-    { ex: "side_leg_raise", mode: "reps", reps: 12, sets: 2 },
-    { ex: "lateral_walk", mode: "time", sec: 40, sets: 2 },
-    { ex: "dead_bug", mode: "reps", reps: 10, sets: 2 },
-    { ex: "side_plank", mode: "time", sec: 30, sets: 2 },
-    { ex: "knee_drive_band", mode: "reps", reps: 10, sets: 2 },
-  ] },
   { id: "kurz", name: "Läufer-Kurzprogramm", focus: "Lösen und aktivieren", when: "direkt nach dem Laufen", items: [
     { ex: "roll_tfl", mode: "time", sec: 45 },
     { ex: "hipflexor_stretch", mode: "time", sec: 45 },
-    { ex: "clamshell", mode: "reps", reps: 15 },
+    { ex: "clamshell", mode: "reps", reps: 15, extraLeft: 1 },
     { ex: "bridge_band", mode: "reps", reps: 15 },
   ] },
 ];
-const REST_SET = 30, REST_EX = 20, PREP_FIRST = 10, PREP_SIDE = 6;
+const REST_SET = 30, REST_EX = 20, PREP_FIRST = 10, PREP_SIDE = 10;
 
 function buildPhases(r) {
-  const ph = [];
+  const ph = [], restSet = r.restSet ?? REST_SET, restEx = r.restEx ?? REST_EX;
+  // Blöcke: je Satz beide Seiten (links zuerst), danach Zusatzsätze nur links
+  const blocks = r.items.map((it) => {
+    const ex = EX[it.ex], sides = ex.sides ? ["links", "rechts"] : [null], out = [];
+    for (let s = 1; s <= (it.sets || 1); s++) out.push({ set: s, sides });
+    for (let x = 0; x < (ex.sides ? it.extraLeft || 0 : 0); x++) out.push({ set: (it.sets || 1) + x + 1, sides: ["links"], extra: true });
+    return out;
+  });
   r.items.forEach((it, ii) => {
-    const ex = EX[it.ex], sets = it.sets || 1, sides = ex.sides ? ["links", "rechts"] : [null];
-    for (let s = 1; s <= sets; s++) sides.forEach((side, si) => {
+    const ex = EX[it.ex], sets = blocks[ii].length;
+    blocks[ii].forEach((bl, bi) => bl.sides.forEach((side, si) => {
       const work = it.mode === "time" ? it.sec : Math.round(it.reps * ex.tempo);
       const prep = !ph.length ? PREP_FIRST : si > 0 ? PREP_SIDE : 0;
-      if (prep) ph.push({ type: "prep", it, ex, set: s, sets, side, dur: prep, switch: si > 0 });
-      ph.push({ type: "work", it, ex, set: s, sets, side, dur: work, ii });
-      const lastSide = si === sides.length - 1, lastSet = s === sets, lastItem = ii === r.items.length - 1;
-      if (lastSide && !(lastSet && lastItem)) {
-        const nextEx = lastSet ? EX[r.items[ii + 1].ex] : ex;
-        ph.push({ type: "rest", it, ex: nextEx, nextIt: lastSet ? r.items[ii + 1] : it, set: lastSet ? 1 : s + 1, side: nextEx.sides ? "links" : null, dur: lastSet ? REST_EX : REST_SET, sets: lastSet ? (r.items[ii + 1].sets || 1) : sets });
+      if (prep) ph.push({ type: "prep", it, ex, set: bl.set, sets, side, dur: prep, switch: si > 0, extra: bl.extra });
+      ph.push({ type: "work", it, ex, set: bl.set, sets, side, dur: work, ii, extra: bl.extra });
+      const lastSide = si === bl.sides.length - 1, lastBlock = bi === sets - 1, lastItem = ii === r.items.length - 1;
+      if (lastSide && !(lastBlock && lastItem)) {
+        const nIt = lastBlock ? r.items[ii + 1] : it, nEx = EX[nIt.ex], nBl = lastBlock ? blocks[ii + 1][0] : blocks[ii][bi + 1];
+        ph.push({ type: "rest", it, ex: nEx, nextIt: nIt, set: nBl.set, side: nBl.sides[0], dur: lastBlock ? restEx : restSet, sets: lastBlock ? blocks[ii + 1].length : sets, extra: nBl.extra });
       }
-    });
+    }));
   });
   return ph;
 }
 const routineMin = (r) => Math.round(buildPhases(r).reduce((s, p) => s + p.dur, 0) / 60);
 const doseTxt = (it) => it.mode === "time" ? `${it.sec} s` : `${it.reps} Wdh.`;
+const setsTxt = (it) => { const s = it.sets || 1, x = EX[it.ex].sides ? it.extraLeft || 0 : 0; return `${s > 1 ? `${s} × ` : ""}${doseTxt(it)}${EX[it.ex].sides ? " je Seite" : ""}${x ? `, +${x} links` : ""}`; };
 
 // ---------- Figur ----------
-const LIMBS = [["far", ["s", "e2", "w2"]], ["far", ["p", "k2", "a2", "t2"]], ["torso", ["s", "p"]], ["near", ["p", "k1", "a1", "t1"]], ["near", ["s", "e1", "w1"]]];
+const LIMBS = [["far", ["s", "e2", "w2"]], ["far", ["p", "k2", "a2", "t2"]], ["torso", ["s", "m", "p"]], ["near", ["p", "k1", "a1", "t1"]], ["near", ["s", "e1", "w1"]]];
 function figSvg(id) {
   return `<svg class="fig" id="${id}" viewBox="0 -20 240 170" role="img" aria-label="Bewegungsanimation">
     <rect x="16" y="130" width="208" height="6" rx="3" fill="var(--line)"/>
@@ -779,7 +894,7 @@ function drawFig(svg, ex, f, rollF = f) {
   if (!svg) return;
   const A = ex.A, B = { ...ex.A, ...(ex.B || {}) };
   if (!ex._vb) { // Ausschnitt an die Übung anpassen
-    const pts = [...Object.values(A), ...Object.values(B), ...(ex.props || []).flatMap((p) => p.a ? [p.a, p.b] : [])];
+    const pts = [...Object.values(A), ...Object.values(B), ...(ex.props || []).flatMap((p) => p.a ? [p.a, p.b] : p.x ? [[p.x + 10, 20]] : [])];
     const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
     const x0 = Math.min(16, Math.min(...xs) - 14), x1 = Math.max(224, Math.max(...xs) + 14), y0 = Math.min(...ys) - 18, y1 = 142;
     const hgt = Math.max(y1 - y0, 90);
@@ -787,9 +902,11 @@ function drawFig(svg, ex, f, rollF = f) {
   }
   if (svg.dataset.vb !== ex._vb) { svg.setAttribute("viewBox", ex._vb); svg.dataset.vb = ex._vb; }
   const pose = {}; for (const k in A) pose[k] = [A[k][0] + (B[k][0] - A[k][0]) * f, A[k][1] + (B[k][1] - A[k][1]) * f];
+  if (!pose.m) pose.m = [(pose.s[0] + pose.p[0]) / 2, (pose.s[1] + pose.p[1]) / 2];
   svg.querySelectorAll("polyline").forEach((pl) => { pl.setAttribute("points", LIMBS[pl.dataset.i][1].map((k) => pose[k].join(",")).join(" ")); });
   const hd = svg.querySelector(".head"); hd.setAttribute("cx", pose.h[0]); hd.setAttribute("cy", pose.h[1]);
   svg.querySelector(".props").innerHTML = (ex.props || []).map((pr) => {
+    if (pr.type === "wall") return `<rect x="${pr.x}" y="-10" width="6" height="140" fill="var(--line)"/>`;
     if (pr.type === "roller") { const x = pr.a[0] + (pr.b[0] - pr.a[0]) * rollF, y = pr.a[1] + (pr.b[1] - pr.a[1]) * rollF; return `<circle cx="${x}" cy="${y}" r="7" fill="var(--indoor)" opacity=".85"/>`; }
     if (pr.type === "loop") { const [x, y] = ptOn(pose, pr.on); return `<ellipse cx="${x}" cy="${y}" rx="4" ry="8" fill="none" stroke="var(--z4)" stroke-width="3"/>`; }
     if (pr.type === "band") { const [x1, y1] = ptOn(pose, pr.from), [x2, y2] = ptOn(pose, pr.to); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--z4)" stroke-width="3.5" stroke-linecap="round"/>`; }
@@ -814,18 +931,21 @@ const writeLog = (e) => { try { const l = readLog(); l.push(e); localStorage.set
 function stabiSuggestion() {
   const t = today(), y = addDays(t, -1);
   const log = readLog(), week = log.filter((e) => weekKey(e.date) === weekKey(t));
-  const doneToday = log.some((e) => e.date === t);
+  const doneToday = log.filter((e) => e.date === t).map((e) => e.id);
   const runToday = P?.ws.some((w) => w.date === t && w.sport === "run");
+  const runPlanned = !runToday && REC?.s?.sport === "run";
   const longYesterday = P?.ws.some((w) => (w.date === y || w.date === t) && w.durationSec >= 75 * 60);
-  const stabilWeek = week.filter((e) => e.id === "stabil").length;
-  let id, why;
-  if (doneToday) return { id: null, why: "Heute schon erledigt.", week };
-  if (runToday) { id = "kurz"; why = "Du bist heute gelaufen: Jetzt lösen und die Hüfte kurz aktivieren."; }
-  else if (longYesterday) { id = "loesen"; why = "Nach der langen Einheit: Hüftbeuger und TFL lösen."; }
-  else if (R && R.level <= 1) { id = "loesen"; why = "Lockerer Tag: Mobilität statt Kraft."; }
-  else if (stabilWeek < 2) { id = "stabil"; why = `Diese Woche ${stabilWeek} von 2 Krafteinheiten für die Hüfte.`; }
-  else { id = "loesen"; why = "Kraftziel der Woche erreicht, heute nur lösen."; }
-  return { id, why, week };
+  const count = (id) => week.filter((e) => e.id === id).length;
+  const pick = (id, why) => doneToday.includes(id) ? null : { id, why, week };
+  const cands = [];
+  if (runPlanned) cands.push(pick("warmup", "Vor dem geplanten Lauf: Hüfte mobilisieren und aktivieren."));
+  if (runToday) cands.push(pick("kurz", "Du bist heute gelaufen: jetzt lösen und die Hüfte kurz aktivieren."));
+  if (longYesterday) cands.push(pick("loesen", "Nach der langen Einheit: Hüftbeuger und TFL lösen."));
+  if (count("stabil") < 3 && !(R && R.level === 0)) cands.push(pick("stabil", `Diese Woche ${count("stabil")} von 3 Krafteinheiten. Die linke Hüfte braucht sie am meisten.`));
+  if (count("ruecken") < 2) cands.push(pick("ruecken", `Diese Woche ${count("ruecken")} von 2 Mobilitätseinheiten für die steife Wirbelsäule.`));
+  cands.push(pick("loesen", "Mobilität für die Hüfte."));
+  const c = cands.find(Boolean);
+  return c || { id: null, why: "Für heute ist alles erledigt.", week };
 }
 
 // ---------- Ansichten ----------
@@ -837,6 +957,7 @@ function viewStabi() {
     <section>
       <div class="sechead"><h2>Heute empfohlen</h2></div>
       ${sg.id ? routineCard(ROUTINES.find((r) => r.id === sg.id), sg.why, true) : `<p class="muted">${sg.why}</p>`}
+      <p class="note">${PROFILE.note} Wochenziel: 3 × Hüfte stabil, 2 × Rücken mobil.</p>
     </section>
     <section>
       <div class="sechead"><h2>Deine letzten 14 Tage</h2></div>
@@ -859,7 +980,7 @@ function routineCard(r, why, primary) {
     <div class="rhead"><div><h3>${r.name}</h3><p class="muted">${r.focus} · ca. ${routineMin(r)} min</p></div>
     <a class="btn" href="#stabi/play/${r.id}">Starten</a></div>
     ${why ? `<p class="why1">${why}</p>` : `<p class="muted small">Ideal ${r.when}.</p>`}
-    <ol class="exlist">${r.items.map((i) => `<li><a href="#stabi/ex/${i.ex}">${EX[i.ex].name}</a><span>${i.sets > 1 ? `${i.sets} × ` : ""}${doseTxt(i)}${EX[i.ex].sides ? " je Seite" : ""}</span></li>`).join("")}</ol>
+    <ol class="exlist">${r.items.map((i) => `<li><a href="#stabi/ex/${i.ex}">${EX[i.ex].name}</a><span>${setsTxt(i)}</span></li>`).join("")}</ol>
     <p class="note">Material: ${eq.join(", ")}</p></div>`;
 }
 let previewRaf = null;
@@ -965,6 +1086,7 @@ function plGoto(i) {
 function plAnnounce() {
   const p = PL.phases[PL.i], dose = p.it.mode === "time" ? `${p.it.sec} Sekunden` : `${p.it.reps} Wiederholungen`;
   if (p.type === "prep") Audio.say(p.switch ? `Seite wechseln. ${sideTxt(p.side)}.` : `${p.ex.name}. ${p.side ? sideTxt(p.side) + ". " : ""}${dose}.`);
+  if (p.type === "rest" && p.extra) { Audio.beep(660, .2); Audio.say(`Pause. Danach Zusatzsatz ${sideTxt(p.side)}.`); return; }
   if (p.type === "work") Audio.beep(1320, .35, .3);
   if (p.type === "rest") { Audio.beep(660, .2); Audio.say(`Pause. Als Nächstes: ${p.ex.name}${p.side ? ", " + sideTxt(p.side) : ""}. ${p.nextIt.mode === "time" ? p.nextIt.sec + " Sekunden" : p.nextIt.reps + " Wiederholungen"}.`); }
 }
@@ -999,7 +1121,7 @@ function plRender(el) {
   $("plPhase").textContent = { prep: p.switch ? "Seite wechseln" : "Vorbereiten", work: "Los", rest: "Pause" }[p.type];
   $("plPhase").className = `plphase ${p.type}`;
   $("plName").textContent = p.ex.name;
-  $("plSide").textContent = [p.side ? sideTxt(p.side).replace(/^./, (c) => c.toUpperCase()) : "", p.sets > 1 ? `Satz ${p.set} von ${p.sets}` : ""].filter(Boolean).join(" · ");
+  $("plSide").textContent = [p.side ? sideTxt(p.side).replace(/^./, (c) => c.toUpperCase()) : "", p.extra ? "Zusatzsatz schwächere Seite" : p.sets > 1 ? `Satz ${p.set} von ${p.sets}` : ""].filter(Boolean).join(" · ");
   const left = Math.max(0, p.dur - el);
   if (p.type === "work" && p.it.mode === "reps") $("plBig").innerHTML = `${Math.min(p.it.reps, Math.floor(el / p.ex.tempo) + 1)}<small> / ${p.it.reps}</small>`;
   else $("plBig").innerHTML = `${Math.ceil(left)}<small> s</small>`;
@@ -1017,6 +1139,10 @@ function plFinish() {
   plStop();
   document.getElementById("view").innerHTML = `<div class="empty"><h2>Geschafft</h2><p class="muted">${r.name}, ca. ${routineMin(r)} min. Die Einheit ist gespeichert.</p><p style="margin-top:16px"><a class="btn" href="#stabi">Zur Übersicht</a></p></div>`;
 }
+
+// Rücken-Leitplanken fürs Laufen (eigene Angaben): bis 5 km bei 7:00–7:20 /km beschwerdefrei,
+// ab 7–8 km oder schneller als ca. 6:30 /km zieht es in den Folgetagen im unteren Rücken.
+const BACK = { runMaxKm: 6, runMinPaceSec: 420, hardOnBike: true };
 
 // ================= Trainingsempfehlung =================
 function recommend(P, R, I) {
@@ -1061,32 +1187,37 @@ function recommend(P, R, I) {
   let s;
   const why = [];
   if (doneToday.length) {
-    s = { kind: "done", what: "Heute schon trainiert", how: `${doneToday.map((w) => `${SPORTS[w.sport].label} ${fmtDur(w.durationSec)}`).join(", ")}. Regeneration steht jetzt im Vordergrund.`, color: "--other" };
+    s = { kind: "done", sport: null, what: "Heute schon trainiert", how: `${doneToday.map((w) => `${SPORTS[w.sport].label} ${fmtDur(w.durationSec)}`).join(", ")}. Regeneration steht jetzt im Vordergrund.`, color: "--other" };
   } else if (R.level === 0) {
-    s = { kind: "rest", what: "Ruhetag", how: "Höchstens 20–30 min Spaziergang oder lockeres Ausrollen unter " + z.bike[1] + " bpm.", color: "--other" };
+    s = { kind: "rest", sport: null, what: "Ruhetag", how: "Höchstens 20–30 min Spaziergang oder lockeres Ausrollen unter " + z.bike[1] + " bpm.", color: "--other" };
     why.push("Deine Erholungssignale sind heute klar negativ.");
   } else {
     const tooMuchHard = (rec.hardShare ?? 0) > 20;
     const canHard = R.level >= 2 && daysSinceHard >= recoveryDays && hardThisWeek < 2 && weekMode !== "Entlastung" && !tooMuchHard;
     if (canHard) {
-      const fam = runHeavy ? "bike" : hardRunShare > .5 ? "bike" : "run";
+      const fam = BACK.hardOnBike || runHeavy || hardRunShare > .5 ? "bike" : "run";
       const sport = fam === "run" ? "run" : "indoor";
       let what, how;
       if ((rec.midShare ?? 0) > 25) { what = "Schwellenintervalle"; how = `4 × 8 min in Z4 (${zr(fam, 3, 4)}${fam === "run" ? pr(.97, 1.0) : ""}), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2 (${zr(fam, 1, 2)}).`; why.push(`Du verbringst ${nf(rec.midShare)} % der Zeit in Z3. Gezielte Schwellenarbeit bringt mehr als weiteres Tempo „dazwischen“.`); }
       else if ((rec.easyShare ?? 0) >= 75 && (rec.efTrend ?? 0) < 1.5) { what = "VO₂max-Intervalle"; how = `5 × 3 min in Z5 (ab ${z[fam][4]} bpm${fam === "run" ? pr(1.05, 1.1) : ""}), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2.`; why.push(`Viel Grundlage (${nf(rec.easyShare)} % locker), aber die Ökonomie stagniert. Ein kurzer, harter Reiz fehlt.`); }
       else { what = fam === "run" ? "Tempodauerlauf" : "Sweet-Spot-Intervalle"; how = fam === "run" ? `20–30 min am oberen Ende von Z3 bis Z4 (${z.run[2] + 8}–${z.run[3] + 5} bpm${pr(.9, .95)}), davor und danach 15 min Z2.` : `3 × 12 min bei ${z.bike[2] + 5}–${z.bike[3] + 3} bpm, 4 min locker dazwischen.`; why.push(rec.easyShare != null ? `Deine Intensitätsverteilung passt (${nf(rec.easyShare)} % locker). Eine Tempo-Einheit hält die Entwicklung am Laufen.` : "Noch keine Zonendaten, daher eine moderate Tempo-Einheit."); }
-      s = { kind: "hard", what: `${what} · ${SPORTS[sport].label}`, how, color: SPORTS[sport].color };
+      s = { kind: "hard", sport, what: `${what} · ${SPORTS[sport].label}`, how, color: SPORTS[sport].color };
+      if (BACK.hardOnBike) why.push("Intensität auf dem Rad: Schnelle Läufe belasten deinen unteren Rücken, Radfahren nicht.");
       why.push(`Letzte harte Einheit vor ${daysSinceHard >= 99 ? "über zwei Wochen" : daysSinceHard + " Tagen"}. Du brauchst laut deinem Ruhepuls ${recoveryDays} Tag${recoveryDays > 1 ? "e" : ""} zur Erholung.`);
       if (fam === "bike" && runHeavy) why.push("Die Laufbelastung der letzten Tage ist hoch, auf dem Rad schonst du die Beine.");
       if (rec.shortSleepPenalty && R.sleepDelta != null && R.sleepDelta <= -45) why.push(`Achtung: Nach kurzen Nächten ist deine Laufökonomie im Schnitt ${nf(rec.shortSleepPenalty, 1)} % schlechter. Heute auf dem Rad oder später verschieben.`);
     } else {
       const long = weekend && R.level >= 2 && weekMode !== "Entlastung";
-      const sport = runHeavy ? (weekend ? "ride" : "indoor") : (daysSinceHard <= 1 ? (weekend ? "ride" : "indoor") : "run");
+      // Lange Einheiten aufs Rad: ab 7–8 km Laufen reagiert der Rücken
+      const sport = long ? "ride" : runHeavy ? (weekend ? "ride" : "indoor") : (daysSinceHard <= 1 ? (weekend ? "ride" : "indoor") : "run");
       const fam = SPORTS[sport].fam;
       const base = durOf(sport, .5) ?? (fam === "run" ? 45 : 60), lng = durOf(sport, .8) ?? base * 1.5;
-      const mins = long ? round5(Math.min(lng * 1.1, fam === "run" ? 150 : 240)) : round5(Math.max(30, R.level === 1 ? base * .75 : base));
-      s = { kind: long ? "long" : "easy", what: `${long ? "Lange Grundlage" : "Lockere Grundlage"} · ${SPORTS[sport].label}`,
-        how: `${mins} min in Z2 (${zr(fam, 1, 2)}${fam === "run" ? pr(.78, .86) : ""}).${long ? " Gleichmäßig, bei Anstiegen Tempo rausnehmen statt Puls hochzutreiben." : " Du solltest dich dabei problemlos unterhalten können."}`, color: SPORTS[sport].color };
+      const runCapMin = BACK.runMaxKm * BACK.runMinPaceSec / 60;
+      const mins = long ? round5(Math.min(lng * 1.1, 240)) : round5(Math.max(30, Math.min(fam === "run" ? runCapMin : 999, R.level === 1 ? base * .75 : base)));
+      const runTxt = fam === "run" ? ` Höchstens ${BACK.runMaxKm} km und nicht schneller als ${fmtPace(BACK.runMinPaceSec)} /km. Steigt der Puls über ${z.run[2]} bpm, 1 min gehen und dann weiterlaufen.` : "";
+      s = { kind: long ? "long" : "easy", sport, what: `${long ? "Lange Grundlage" : "Lockere Grundlage"} · ${SPORTS[sport].label}`,
+        how: `${mins} min in Z2 (${zr(fam, 1, 2)}).${runTxt}${long ? " Gleichmäßig, bei Anstiegen Tempo rausnehmen statt Puls hochzutreiben." : fam === "run" ? "" : " Du solltest dich dabei problemlos unterhalten können."}`, color: SPORTS[sport].color };
+      if (long) why.push("Lange Grundlage auf dem Rad: Beim Laufen reagiert dein Rücken ab 7–8 km.");
       if (R.level === 1) why.push("Die Erholungssignale sprechen heute gegen hohe Intensität.");
       if (daysSinceHard < recoveryDays) why.push(`Letzte harte Einheit vor ${daysSinceHard} Tag${daysSinceHard === 1 ? "" : "en"}, du brauchst im Schnitt ${recoveryDays} Tag${recoveryDays > 1 ? "e" : ""} zur Erholung.`);
       if (hardThisWeek >= 2) why.push("Diese Woche hattest du schon zwei harte Einheiten, mehr bringt selten mehr.");
@@ -1105,7 +1236,7 @@ function recommend(P, R, I) {
     if (wd === 1) hardCount = 0;
     let txt;
     if (weekMode === "Entlastung") txt = i === 2 ? "Ruhetag" : "Locker Z1–Z2";
-    else if (i - lastHardOffset >= recoveryDays && hardCount < 2 && i > 1) { txt = "Qualitätseinheit möglich"; lastHardOffset = i; hardCount++; }
+    else if (i - lastHardOffset >= recoveryDays && hardCount < 2 && i > 1) { txt = BACK.hardOnBike ? "Qualität auf dem Rad" : "Qualitätseinheit möglich"; lastHardOffset = i; hardCount++; }
     else if (i - lastHardOffset === 1 && lastHardOffset >= 0) txt = "Locker oder Ruhetag";
     else txt = [0, 6].includes(wd) ? "Lange Grundlage" : "Grundlage Z2";
     outlook.push({ d, txt });
@@ -1119,6 +1250,10 @@ function recommend(P, R, I) {
   if (runKm4 > 0) recs.push({ b: `Laufumfang: ${nf(runKmNow, 1)} von max. ${nf(runCap, 1)} km`, s: runKmNow > runCap ? "Über der 10-%-Grenze. Weitere Einheiten auf dem Rad statt laufend." : "Mehr als 10 % pro Woche erhöht das Verletzungsrisiko für Sehnen und Knochen.", m: `4-Wochen-Schnitt ${nf(runKm4, 1)} km`, pct: Math.min(1, runKmNow / runCap) });
   if (rec.easyShare != null) recs.push({ b: rec.easyShare < 75 ? "Mehr locker, weniger mittel" : "Intensitätsverteilung passt",
     s: rec.easyShare < 75 ? `Nur ${nf(rec.easyShare)} % deiner Zeit sind locker. Lockere Einheiten konsequent unter ${z.run[2]} bpm (Laufen) bzw. ${z.bike[2]} bpm (Rad) halten.` : `${nf(rec.easyShare)} % locker, ${nf(rec.hardShare)} % hart. So weitermachen.`, m: "Letzte 8 Wochen, Richtwert rund 80 % locker" });
+  recs.push({ b: `Rücken: Läufe bis ${BACK.runMaxKm} km, nicht schneller als ${fmtPace(BACK.runMinPaceSec)} /km`, s: "Intensität und lange Einheiten aufs Rad. Laufumfang um höchstens 0,5 km pro Woche steigern, und nur, wenn der Rücken an den Folgetagen ruhig bleibt.", m: "Aus deinen Angaben zu Beschwerden nach langen oder schnellen Läufen" });
+  const lastRuns = ws.filter((w) => w.sport === "run" && w.date >= addDays(t, -14));
+  const over = lastRuns.filter((w) => (w.distanceM || 0) / 1000 > BACK.runMaxKm + .3 || (paceOf(w) || 999) < BACK.runMinPaceSec - 10);
+  if (over.length) recs.push({ b: `${over.length} ${over.length === 1 ? "Lauf" : "Läufe"} der letzten 2 Wochen über der Rücken-Grenze`, s: over.map((w) => `${fmtDate(w.date)}: ${nf(w.distanceM / 1000, 1)} km, ${fmtPace(paceOf(w))} /km`).join(" · "), m: "Distanz über " + BACK.runMaxKm + " km oder Pace schneller als " + fmtPace(BACK.runMinPaceSec) + " /km" });
   if (rec.recoveryDays) recs.push({ b: `Mindestens ${rec.recoveryDays} Tag${rec.recoveryDays > 1 ? "e" : ""} zwischen harten Einheiten`, s: "So lange braucht dein Ruhepuls, um nach harten Tagen wieder auf Normalniveau zu kommen.", m: "Aus deinen Ruhepulsdaten abgeleitet" });
   if (rec.shortSleepPenalty) recs.push({ b: "Harte Läufe nicht nach kurzen Nächten", s: `Nach kurzem Schlaf bist du im Schnitt ${nf(rec.shortSleepPenalty, 1)} % unökonomischer. Harte Einheiten dann aufs Rad legen oder verschieben.`, m: "Aus deinen Lauf- und Schlafdaten abgeleitet" });
   if (rec.rhrPenalty) recs.push({ b: "Morgens den Ruhepuls prüfen", s: `Bei erhöhtem Ruhepuls läufst du ${nf(rec.rhrPenalty, 1)} % unökonomischer. Das ist dein verlässlichstes Signal, eine harte Einheit zu tauschen.`, m: "Aus deinen Lauf- und Ruhepulsdaten abgeleitet" });
@@ -1285,6 +1420,7 @@ function viewDetail(w) {
   if (w.zones) v.push(w.isHard ? `Harte Einheit: ${nf((w.zones[3] + w.zones[4]) / zt * 100)} % der Zeit in Z4–Z5.` : w.easyShare >= .8 ? `Saubere Grundlageneinheit: ${nf(w.easyShare * 100)} % in Z1–Z2.` : `Mischeinheit: ${nf(w.zones[2] / zt * 100)} % in Z3. Für Grundlage zu hart, für einen echten Reiz zu locker.`);
   else if (w.avgHr) v.push(`Ø Puls bei ${nf(w.avgHr / w.hrMaxUsed * 100)} % deines Maximalpulses.`);
   if (w.efRes != null) v.push(`Laufökonomie ${sg(w.efRes, 1)} % gegenüber deinem Trend${Math.abs(w.efRes) >= 3 ? (w.efRes > 0 ? ", ein klar guter Tag." : ", deutlich unter Normalform.") : "."}`);
+  if (w.sport === "run" && ((w.distanceM || 0) / 1000 > BACK.runMaxKm + .3 || (paceOf(w) || 999) < BACK.runMinPaceSec - 10)) v.push(`Über deiner Rücken-Grenze (${BACK.runMaxKm} km, ${fmtPace(BACK.runMinPaceSec)} /km). Achte in den nächsten zwei Tagen auf den unteren Rücken.`);
   if (w.decoupling != null) v.push(`Entkopplung ${nf(w.decoupling, 1)} %: ${w.decoupling < 5 ? "Tempo und Puls blieben bis zum Ende stabil." : w.decoupling < 10 ? "In der zweiten Hälfte kostete das Tempo spürbar mehr Puls." : "Deutlicher Leistungsabfall in der zweiten Hälfte, für diese Dauer fehlt noch Grundlage oder die Einheit war zu schnell begonnen."}`);
   const cond = [];
   if (day.rhr && bR && day.rhr - bR.m >= Math.max(3, bR.spread)) cond.push(`erhöhtem Ruhepuls (${sg(day.rhr - bR.m)} bpm)`);
@@ -1584,7 +1720,7 @@ function viewAnalysis() {
 
 function renderMeta(meta, demo) {
   const info = document.getElementById("syncinfo"), banner = document.getElementById("banner");
-  if (demo) { info.textContent = "Beispieldaten"; return; }
+  if (demo) { info.textContent = "Beispieldaten"; document.getElementById("syncBtn").disabled = true; return; }
   if (!meta) { info.textContent = "Noch kein Sync"; return; }
   info.innerHTML = meta.lastSuccess ? `Sync<br>${new Date(meta.lastSuccess).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : "Noch kein Sync";
   const msgs = [];
@@ -1639,9 +1775,47 @@ function applyChartDefaults() {
   Chart.defaults.color = css("--muted");
   Chart.defaults.borderColor = css("--line");
 }
+// ---------- Manueller Sync ----------
+function askKey() {
+  const dlg = document.getElementById("keyDlg"), inp = document.getElementById("keyInput");
+  inp.value = "";
+  return new Promise((res) => {
+    dlg.onclose = () => res(dlg.returnValue === "ok" && inp.value.trim() ? inp.value.trim() : null);
+    dlg.showModal(); inp.focus();
+  });
+}
+async function doSync() {
+  const btn = document.getElementById("syncBtn"), info = document.getElementById("syncinfo");
+  if (btn.classList.contains("busy") || DATA?.demo) return;
+  let key = null; try { key = localStorage.getItem("syncKey"); } catch {}
+  if (!key) { key = await askKey(); if (!key) return; try { localStorage.setItem("syncKey", key); } catch {} }
+  btn.classList.add("busy"); info.textContent = "Lädt …";
+  const banner = document.getElementById("banner");
+  try {
+    let meta = null;
+    for (let i = 0; i < 6; i++) {
+      const r = await fetch(`/api/sync?key=${encodeURIComponent(key)}&t=${Date.now()}`);
+      if (r.status === 403) { try { localStorage.removeItem("syncKey"); } catch {} throw new Error("Sync-Schlüssel ist falsch. Beim nächsten Tippen neu eingeben."); }
+      if (!r.ok) throw new Error(`Sync fehlgeschlagen (HTTP ${r.status})`);
+      meta = await r.json();
+      if (!meta.ok || !meta.detailsPending) break;
+      info.textContent = `Noch ${meta.detailsPending} …`;
+    }
+    const d = await fetch(`/api/data?t=${Date.now()}`);
+    DATA = await d.json();
+    renderMeta(DATA.meta, false); compute(); route();
+    if (meta?.ok) banner.insertAdjacentHTML("afterbegin", `<div class="banner" id="syncOk">Aktualisiert${meta.added ? `: ${meta.added} neue Einheit${meta.added > 1 ? "en" : ""}` : ", keine neuen Einheiten"}.</div>`);
+    setTimeout(() => document.getElementById("syncOk")?.remove(), 4000);
+  } catch (e) {
+    banner.insertAdjacentHTML("afterbegin", `<div class="banner">${e.message}</div>`);
+    renderMeta(DATA?.meta, false);
+  } finally { btn.classList.remove("busy"); }
+}
+
 async function init() {
   Chart.register(zoneBandsPlugin);
   applyChartDefaults();
+  document.getElementById("syncBtn").onclick = doSync;
   document.getElementById("back").onclick = () => { location.hash = location.hash.startsWith("#stabi") ? "#stabi" : "#einheiten"; };
   if (new URLSearchParams(location.search).has("demo")) DATA = demoData();
   else {
