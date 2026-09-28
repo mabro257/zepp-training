@@ -7,7 +7,7 @@ export default async () => {
   const days = (await store.get("days", { type: "json" })) || {};
   const meta = (await store.get("meta", { type: "json" })) || null;
   const workouts = Object.values(db)
-    .map(({ raw, source, detailTries, detailVersion, tries2, tries3, ...w }) => w)
+    .map(({ raw, source, detailTries, detailVersion, tries2, tries3, tries4, ...w }) => w)
     .sort((a, b) => (a.start || 0) - (b.start || 0));
   const { userId, ...publicMeta } = meta || {};
   return Response.json(
