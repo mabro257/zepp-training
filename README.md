@@ -54,7 +54,7 @@ Laufband (Sporttyp 8/11) ist kein Trainingsfokus: Es zählt zur Gesamtbelastung,
 
 ## Stabi
 
-Programme „Hüfte lösen“ (Faszienrolle, Dehnung), „Hüfte stabil“ (Miniband, langes Band, Matte) und „Läufer-Kurzprogramm“. Der Player führt mit Vorbereitung, Countdown, Wiederholungszähler im vorgegebenen Tempo, Seitenwechsel und Pausen. Töne und Sprachansage (Browser-Sprachausgabe, Deutsch) lassen sich getrennt abschalten; der Bildschirm bleibt während des Programms an. Erledigte Einheiten werden nur im jeweiligen Browser gespeichert (localStorage). Übungen und Programme stehen in `EX` und `ROUTINES` in `public/index.html`.
+Programme „Lauf-Warm-up“, „Hüfte stabil“ (Schwerpunkt linke Seite mit Zusatzsatz), „Rücken mobil“ (Brustwirbelsäule), „Hüfte lösen“ und „Läufer-Kurzprogramm“. Anpassungen an das persönliche Profil stehen in `PROFILE`, die Lauf-Grenzen für den Rücken in `BACK` (max. km, langsamste erlaubte Pace, Intensität aufs Rad). Der Player führt mit Vorbereitung, Countdown, Wiederholungszähler im vorgegebenen Tempo, Seitenwechsel und Pausen. Töne und Sprachansage (Browser-Sprachausgabe, Deutsch) lassen sich getrennt abschalten; der Bildschirm bleibt während des Programms an. Erledigte Einheiten werden nur im jeweiligen Browser gespeichert (localStorage). Übungen und Programme stehen in `EX` und `ROUTINES` in `public/index.html`.
 
 ## Trainingsempfehlung
 
@@ -102,6 +102,10 @@ Jeder Zusammenhang wird mit einem Welch-Test geprüft und als **belastbar** (|t|
 - Die API ist undokumentiert und kann sich jederzeit ändern.
 - Paginierung der Workout-Liste, das Format des Pulsverlaufs und die Felder der Tageswerte (`slp.rhr`, Schlafphasen) (`heart_rate` in `run/detail.json`) sind aus Community-Projekten abgeleitet. Liefert der Parser Unplausibles, bleibt `hrBins` leer und die Belastung wird aus dem Ø-Puls geschätzt.
 - Sporttyp-Codes: 1 Laufen, 8/11 Laufband, 9 Rad draußen, 10 Indoor-Cycling. Andere landen unter „Sonstiges“. Weitere Codes in `SPORTS` in `public/index.html` ergänzen.
+
+## Sync-Button
+
+Oben rechts in der App. Beim ersten Tippen wird der SYNC_KEY abgefragt und nur auf diesem Gerät gespeichert. Der Button ruft `/api/sync` so oft auf, bis alle Detaildaten geladen sind (je Aufruf ca. 6 Sekunden Budget), und lädt danach die Daten neu.
 
 ## Lokal testen
 
