@@ -50,7 +50,7 @@ main{max-width:1100px;margin:0 auto;padding:18px 16px calc(var(--nav-h) + env(sa
 .banner{background:var(--warn-bg);color:var(--warn-ink);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:.9rem}
 
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(4,1fr);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px)}
+  display:grid;grid-template-columns:repeat(5,1fr);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px)}
 nav.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:var(--muted);font-size:.75rem;font-weight:500}
 nav.tabs a svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs a[aria-current="page"]{color:var(--ink)}
@@ -136,11 +136,60 @@ td.num,th.num{text-align:right}
 .tablewrap{overflow-x:auto}
 .grid2>div,.grid2>section{margin-bottom:28px}
 
+/* Leistung */
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.card{background:var(--surface);border-radius:12px;padding:12px}
+.card b{display:block;font-family:var(--display);font-size:1.55rem;font-weight:600;line-height:1.05}
+.card span{font-size:.75rem;color:var(--muted);display:block}
+.card small{font-size:.75rem}
+.small{font-size:.85rem}
+/* Stabi */
+.btn{display:inline-block;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:600;border-radius:999px;padding:9px 18px;font-size:.95rem;border:0;cursor:pointer}
+.routine{margin-bottom:12px}
+.routine.primary{box-shadow:inset 0 0 0 2px var(--ink)}
+.rhead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.why1{margin-top:8px;font-size:.93rem}
+.exlist{margin:12px 0 0;padding-left:20px;font-size:.92rem}
+.exlist li{padding:3px 0}
+.exlist li span{color:var(--muted);margin-left:6px}
+.exlist a{color:inherit}
+.streak{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;text-align:center}
+.streak i{display:block;height:22px;border-radius:5px;background:var(--line)}
+.streak .on i{background:var(--ride)}
+.streak span{font-size:.7rem;color:var(--muted)}
+.figbox{background:var(--surface);border-radius:14px;padding:8px;margin-bottom:14px}
+.fig{width:100%;height:auto;max-height:280px;display:block}
+.fig polyline{stroke-width:7}
+.fig .near{stroke:var(--ink)}
+.fig .torso{stroke:var(--ink);stroke-width:9}
+.fig .far{stroke:var(--muted);opacity:.55}
+.fig .head{fill:var(--ink)}
+.cues{margin:10px 0;padding-left:20px}
+.cues li{padding:3px 0}
+.avoid{color:var(--neg);font-size:.92rem}
+.player{max-width:560px;margin:0 auto}
+.pbar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:var(--ink)}
+.pbar.thin{height:4px;margin:6px 0 10px}
+.plmeta{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin:6px 0 10px}
+.plphase{font-family:var(--display);font-weight:700;font-size:1rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.plphase.work{color:var(--pos)} .plphase.rest{color:var(--fatigue)}
+.plside{color:var(--muted);margin-top:2px}
+.plbig{font-family:var(--display);font-weight:700;font-size:4.2rem;line-height:1;margin-top:8px;font-variant-numeric:tabular-nums}
+.plbig small{font-size:1.4rem;color:var(--muted);font-weight:600}
+.plnext{font-size:.9rem;color:var(--muted)}
+.plctl{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-top:16px}
+.plctl button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px;font-size:1.2rem;cursor:pointer}
+.plctl .main{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;font-size:1.1rem}
+.pltog{display:flex;gap:8px;margin-top:10px;justify-content:center}
+.pltog button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 14px;font-size:.85rem;color:var(--muted);cursor:pointer}
+.pltog button[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+
 @media (min-width:900px){
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:32px}
   .heute{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
   .kpis{grid-template-columns:repeat(6,1fr)}
-  nav.tabs{top:0;bottom:auto;left:50%;transform:translateX(-50%);width:min(560px,60vw);height:var(--nav-h);padding:0;border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px}
+  nav.tabs{top:0;bottom:auto;left:50%;transform:translateX(-50%);width:min(680px,70vw);height:var(--nav-h);padding:0;border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px}
   nav.tabs a{flex-direction:row;font-size:.9rem;gap:8px}
   .appbar{top:calc(var(--nav-h) + env(safe-area-inset-top,0px))}
   body{padding-top:var(--nav-h)}
@@ -161,6 +210,7 @@ td.num,th.num{text-align:right}
   <a href="#einheiten" data-tab="einheiten"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Einheiten</a>
   <a href="#fortschritt" data-tab="fortschritt"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Fortschritt</a>
   <a href="#analyse" data-tab="analyse"><svg viewBox="0 0 24 24"><path d="M20.8 11.2a8.8 8.8 0 1 1-8-8V12z"/><path d="M15 3.3A8.8 8.8 0 0 1 20.7 9H15z"/></svg>Analyse</a>
+  <a href="#stabi" data-tab="stabi"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M12 7v6M7 10l5-1 5 1M12 13l-4 7M12 13l4 7"/></svg>Stabi</a>
 </nav>
 
 <script>
@@ -208,18 +258,21 @@ const paceOf = (w) => w.paceSecKm || (w.distanceM ? w.durationSec / (w.distanceM
 const tempoTxt = (w) => !w.distanceM ? "–" : SPORTS[w.sport].fam === "run" ? `${fmtPace(paceOf(w))} /km` : `${nf(speedOf(w) * 3.6, 1)} km/h`;
 
 // ================= Pulsparameter aus Messwerten =================
+// Max. Puls: je Einheit der höchste 15-s-Mittelwert der Pulskurve (glättet Sensor-Spitzen), sonst der Maximalpuls der Uhr.
+// Gezählt wird der höchste Wert, den mindestens eine zweite Einheit bis auf 8 bpm bestätigt.
 function robustMax(values) {
   const s = clean(values).filter((v) => v >= 120 && v <= 230).sort((a, b) => b - a);
   if (!s.length) return null;
-  for (let i = 0; i < s.length - 1; i++) if (s[i] - s[i + 1] <= 5) return { value: s[i], n: s.length };
-  return { value: s[s.length - 1], n: s.length };
+  for (let i = 0; i < s.length - 1; i++) if (s[i] - s[i + 1] <= 8) return { value: Math.round(s[i]), n: s.length };
+  return { value: Math.round(s[s.length - 1]), n: s.length };
 }
+const workoutMaxHr = (w) => w.hrSeries?.length ? Math.max(...w.hrSeries.map((x) => x[1])) : w.maxHr;
 function deriveHr(ws, days) {
   const recent = ws.filter((w) => w.date >= addDays(today(), -730));
-  const global = robustMax(recent.map((w) => w.maxHr)) || { value: 190, n: 0, fallback: true };
+  const global = robustMax(recent.map(workoutMaxHr)) || { value: 190, n: 0, fallback: true };
   const byFam = { other: { ...global, own: false } };
   for (const f of ["run", "bike"]) {
-    const vals = recent.filter((w) => SPORTS[w.sport].fam === f).map((w) => w.maxHr);
+    const vals = recent.filter((w) => SPORTS[w.sport].fam === f).map(workoutMaxHr);
     const r = clean(vals).length >= 8 ? robustMax(vals) : null;
     byFam[f] = r ? { ...r, own: true } : { ...global, own: false };
   }
@@ -268,7 +321,8 @@ function prepare(data) {
     const zt = w.zones ? w.zones.reduce((a, b) => a + b, 0) : 0;
     w.hardShare = zt ? (w.zones[3] + w.zones[4]) / zt : w.avgHr ? (w.avgHr / max >= .82 ? .5 : 0) : 0;
     w.easyShare = zt ? (w.zones[0] + w.zones[1]) / zt : w.avgHr ? (w.avgHr / max < .72 ? 1 : 0) : null;
-    if (w.sport === "run" && w.avgHr && w.distanceM > 1000) w.ef = (w.distanceM / (w.durationSec / 60)) / w.avgHr;
+    if (w.gapSeries) w.gapSpeed = mean(w.gapSeries.map(([, v]) => v));
+    if (w.sport === "run" && w.avgHr && w.distanceM > 1000) w.ef = ((w.gapSpeed ? w.gapSpeed * 60 : w.distanceM / (w.durationSec / 60))) / w.avgHr;
     w.decoupling = decoupling(w);
   }
   const runs = ws.filter((w) => w.ef);
@@ -292,7 +346,7 @@ function prepare(data) {
 // ohne die ersten 10 Minuten. Unter 5 % gilt die aerobe Ausdauer für diese Dauer als gut.
 function decoupling(w) {
   if (!w.hrSeries || !w.speedSeries || w.sport === "indoor" || w.durationSec < 40 * 60) return null;
-  const sp = Object.fromEntries(w.speedSeries);
+  const sp = Object.fromEntries(w.gapSeries || w.speedSeries);
   const pts = w.hrSeries.filter(([t]) => t >= 600 && sp[t] > .5).map(([t, h]) => [t, h, sp[t]]);
   if (pts.length < 40) return null;
   const mid = pts[Math.floor(pts.length / 2)][0];
@@ -442,6 +496,528 @@ function buildInsights(P) {
   return { out, rec, cond };
 }
 
+// ================= Leistung: steigungsbereinigt, Pace bei Puls, Bestleistungen =================
+const PERF_D = [60, 180, 300, 600, 720, 1200, 1800, 3600];
+const durLabel = (d) => d < 3600 ? `${d / 60} min` : `${d / 3600} h`;
+const fmtClock = (sec) => { if (sec == null || !isFinite(sec)) return "–"; sec = Math.round(sec); const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${m}:${String(s).padStart(2, "0")}`; };
+const CS_ZONES = [0, .78, .88, .95, 1.02, 1.15]; // Anteil der Critical Speed je Zonengrenze
+
+// Beste Durchschnittsgeschwindigkeit je Dauer (gleitendes Fenster über 15-s-Werte) samt Ø Puls im Fenster
+function bestEfforts(w) {
+  const ser = w.speedSeries; if (!ser || ser.length < 5) return null;
+  const step = 15, t0 = ser[0][0], n = Math.round((ser[ser.length - 1][0] - t0) / step) + 1;
+  const v = new Array(n).fill(null), h = new Array(n).fill(null);
+  for (const [t, x] of ser) if (x > 0.8 && x < 7) v[Math.round((t - t0) / step)] = x;
+  if (w.hrSeries) for (const [t, x] of w.hrSeries) { const i = Math.round((t - t0) / step); if (i >= 0 && i < n) h[i] = x; }
+  const out = {};
+  for (const D of PERF_D) {
+    const k = D / step; if (k > n) continue;
+    let sum = 0, nulls = 0, best = null;
+    for (let i = 0; i < n; i++) {
+      if (v[i] == null) nulls++; else sum += v[i];
+      if (i >= k) { if (v[i - k] == null) nulls--; else sum -= v[i - k]; }
+      if (i >= k - 1 && nulls <= Math.floor(k * .1)) {
+        const avg = sum / (k - nulls);
+        if (!best || avg > best.v) best = { v: avg, end: i };
+      }
+    }
+    if (best) {
+      const hs = h.slice(best.end - k + 1, best.end + 1);
+      out[D] = { v: best.v, hr: mean(hs), id: w.id, date: w.date };
+    }
+  }
+  return out;
+}
+
+// Pace bei festem Puls: lineare Regression Tempo ~ Puls im Bereich ±15 bpm, ab Minute 10.
+// Nutzt das steigungsbereinigte Tempo, wenn vorhanden.
+function paceAtHr(w, ref) {
+  if (!w.hrSeries) return null;
+  const src = w.gapSeries || w.speedSeries; if (!src) return null;
+  const sp = Object.fromEntries(src);
+  const pts = w.hrSeries.filter(([t, h]) => t >= 600 && sp[t] > 1.5 && sp[t] < 7 && Math.abs(h - ref) <= 15).map(([t, h]) => [h, sp[t]]);
+  if (pts.length < 20) return null;
+  const hs = pts.map((p) => p[0]), vs = pts.map((p) => p[1]);
+  let v = null;
+  if (sd(hs) >= 3 && Math.min(...hs) <= ref + 2 && Math.max(...hs) >= ref - 2) {
+    const mh = mean(hs), mv = mean(vs); let num = 0, den = 0;
+    for (const [h, x] of pts) { num += (h - mh) * (x - mv); den += (h - mh) ** 2; }
+    const b = den > 0 ? num / den : 0;
+    if (b > 0) v = mv + b * (ref - mh);
+  }
+  if (v == null) { const near = pts.filter((p) => Math.abs(p[0] - ref) <= 3); if (near.length >= 12) v = median(near.map((p) => p[1])); }
+  return v > 1.5 && v < 7 ? 1000 / v : null;
+}
+
+function aggregateBests(runs) {
+  const agg = {};
+  for (const w of runs) if (w.best) for (const [D, b] of Object.entries(w.best)) if (!agg[D] || b.v > agg[D].v) agg[D] = b;
+  return agg;
+}
+
+// Critical Speed: Distanz = CS × Zeit + D′ über die Bestleistungen von 3 bis 30 min
+function criticalSpeed(bests, hrMax) {
+  const use = [180, 300, 600, 720, 1200, 1800].filter((d) => bests[d]);
+  const hard = (d) => bests[d].hr && bests[d].hr >= (d <= 300 ? .86 : .84) * hrMax;
+  if (use.length >= 3 && use.some((d) => d <= 300) && use.some((d) => d >= 720)) {
+    const xs = use, ys = use.map((d) => bests[d].v * d), mx = mean(xs), my = mean(ys);
+    let num = 0, den = 0; xs.forEach((x, i) => { num += (x - mx) * (ys[i] - my); den += (x - mx) ** 2; });
+    const cs = num / den, dp = my - cs * mx;
+    if (cs > 2 && cs < 6.5 && dp >= 30 && dp <= 600) {
+      const hardN = use.filter(hard).length;
+      return { cs, dprime: dp, method: "model", quality: hardN >= use.length - 1 ? "hoch" : hardN >= 2 ? "mittel" : "niedrig", used: use };
+    }
+  }
+  const d = bests[1200] ? 1200 : bests[1800] ? 1800 : null;
+  if (d) return { cs: bests[d].v * (d === 1200 ? .95 : .97), dprime: null, method: "estimate", quality: hard(d) ? "mittel" : "niedrig", used: [d] };
+  return null;
+}
+
+function predictRaces(c) {
+  if (!c) return null;
+  const t5 = c.dprime != null ? (5000 - c.dprime) / c.cs : 5000 / (c.cs * 1.04);
+  const riegel = (d) => t5 * Math.pow(d / 5000, 1.06);
+  return { k5: t5, k10: riegel(10000), hm: riegel(21097.5) };
+}
+
+function bestKm(runs, k) {
+  let best = null;
+  for (const w of runs) {
+    const s = w.splits; if (!s || s.length < k) continue;
+    for (let i = 0; i + k <= s.length; i++) {
+      const t = s.slice(i, i + k).reduce((a, x) => a + x.paceSec, 0);
+      if (!best || t < best.t) best = { t, date: w.date, id: w.id };
+    }
+  }
+  return best;
+}
+
+function perfAnalysis(P) {
+  const runs = P.ws.filter((w) => w.sport === "run");
+  for (const w of runs) w.best = bestEfforts(w);
+  const hrMax = P.hr.byFam.run.value;
+  // Referenzpuls dort, wo du tatsächlich läufst: Median der Ø-Pulse der letzten 90 Tage, ±10 bpm
+  const mid = round5(median(runs.filter((w) => w.date > addDays(today(), -90)).map((w) => w.avgHr)) ?? .78 * hrMax);
+  const refs = [mid - 10, mid, mid + 10];
+  for (const w of runs) w.pah = Object.fromEntries(refs.map((r) => [r, paceAtHr(w, r)]));
+  const t = today();
+  const within = (from, to) => runs.filter((w) => w.date > from && w.date <= to);
+  const bests90 = aggregateBests(within(addDays(t, -90), t));
+  const bestsAll = aggregateBests(runs);
+  const bests42 = aggregateBests(within(addDays(t, -42), t));
+  const cs = criticalSpeed(bests90, hrMax);
+  const csThen = criticalSpeed(aggregateBests(within(addDays(t, -132), addDays(t, -42))), hrMax);
+  const pred = predictRaces(cs), predThen = predictRaces(csThen);
+  // Prognoseverlauf: je Woche aus den Bestleistungen der 90 Tage davor
+  const trend = lastWeeks(20).map((wk) => {
+    const end = [addDays(wk, 6), t].sort()[0];
+    const c = criticalSpeed(aggregateBests(within(addDays(end, -90), end)), hrMax);
+    return { wk, k10: predictRaces(c)?.k10 ?? null, cs: c?.cs ?? null };
+  });
+  const zonesPace = cs ? CS_ZONES.map((f) => f > 0 ? 1000 / (f * cs.cs) : null) : null;
+  const kmBests = [1, 3, 5, 10].map((k) => ({ k, b: bestKm(runs, k) })).filter((x) => x.b);
+
+  // Erkenntnis: Pace bei festem Puls
+  const insights = [];
+  const ref = refs[1];
+  const now = median(runs.filter((w) => w.date > addDays(t, -28)).map((w) => w.pah[ref]));
+  const then = median(runs.filter((w) => w.date <= addDays(t, -56) && w.date > addDays(t, -112)).map((w) => w.pah[ref]));
+  const nNow = runs.filter((w) => w.date > addDays(t, -28) && w.pah[ref]).length;
+  if (now && then && nNow >= 2) {
+    const d = now - then;
+    insights.push({ cls: d < -3 ? "solid" : d > 3 ? "warn" : "", title: `Pace bei ${ref} bpm`,
+      text: `Bei ${ref} bpm läufst du aktuell ${fmtPace(now)} /km, vor 2–4 Monaten waren es ${fmtPace(then)} /km (${d < 0 ? "−" : "+"}${nf(Math.abs(d))} s). ${d < -3 ? "Deine aerobe Leistungsfähigkeit steigt." : d > 3 ? "Bei gleichem Puls bist du langsamer. Häufige Gründe: Ermüdung, Hitze oder weniger Grundlagenvolumen." : "Stabil."}`,
+      meta: `Steigungsbereinigt, Median aus ${nNow} Läufen der letzten 4 Wochen` });
+  }
+  if (cs) insights.push({ cls: cs.quality === "hoch" ? "solid" : "", title: "Schwellentempo",
+    text: `Deine Critical Speed liegt bei ${fmtPace(1000 / cs.cs)} /km. Das entspricht etwa dem Tempo, das du 30–40 Minuten durchhalten kannst.${csThen ? ` Vor 6 Wochen: ${fmtPace(1000 / csThen.cs)} /km.` : ""}`,
+    meta: cs.method === "model" ? `Modell aus deinen Bestleistungen über ${cs.used.map(durLabel).join(", ")} (letzte 90 Tage), Aussagekraft ${cs.quality}` : `Geschätzt aus deiner besten ${durLabel(cs.used[0])}-Leistung, Aussagekraft ${cs.quality}` });
+  return { refs, bests90, bestsAll, bests42, cs, csThen, pred, predThen, trend, zonesPace, kmBests, insights };
+}
+
+// ================= Stabilisation: Übungen, Programme, Player =================
+// Posen: Seitenansicht (bzw. Frontalansicht bei lateral_walk), viewBox 0 -20 240 170, Boden y=130.
+// Punkte: h Kopf, s Schulter, p Hüfte, e/w Ellbogen/Hand, k/a/t Knie/Fußgelenk/Zehen; 1 = nahe Seite, 2 = ferne Seite.
+const EX = {
+  roll_tfl: {
+    name: "Faszienrolle: TFL und seitliche Hüfte", cat: "Lösen", equip: ["Faszienrolle"], target: "Tensor fasciae latae, Gluteus medius", anim: "roll", sides: true,
+    cues: ["Seitlich auf die Rolle, knapp unter und vor dem Hüftknochen", "Oberes Bein vorne aufstellen und damit den Druck steuern", "Langsam 5–8 cm vor und zurück rollen, an Druckpunkten 20 s verweilen"],
+    avoid: "Nicht an der Außenseite des Oberschenkels bis zum Knie rollen",
+    A: { h: [70, 92], s: [82, 100], p: [125, 112], e1: [92, 112], w1: [100, 128], e2: [80, 128], w2: [60, 128], k1: [150, 100], a1: [148, 128], t1: [158, 129], k2: [162, 118], a2: [198, 124], t2: [201, 116] },
+    props: [{ type: "roller", a: [125, 124], b: [142, 124] }],
+  },
+  roll_quad: {
+    name: "Faszienrolle: Hüftbeuger und Oberschenkel vorne", cat: "Lösen", equip: ["Faszienrolle"], target: "Rectus femoris, Ansatz der Hüftbeuger", anim: "roll", sides: true,
+    cues: ["Unterarmstütz, Rolle unter der Vorderseite eines Oberschenkels", "Bauch fest, kein Hohlkreuz", "Von knapp unter der Leiste bis zur Mitte des Oberschenkels rollen"],
+    avoid: "Nicht über die Kniescheibe rollen",
+    A: { h: [66, 88], s: [80, 96], p: [130, 104], e1: [80, 124], w1: [60, 126], e2: [84, 124], w2: [64, 126], k1: [168, 112], a1: [204, 118], t1: [210, 126], k2: [168, 110], a2: [205, 114], t2: [211, 122] },
+    props: [{ type: "roller", a: [140, 117], b: [158, 119] }],
+  },
+  hipflexor_stretch: {
+    name: "Hüftbeuger-Dehnung im Halbkniestand", cat: "Dehnen", equip: ["Matte"], target: "Iliopsoas, Rectus femoris, TFL", anim: "stretch", sides: true,
+    cues: ["Hinteres Knie auf die Matte, vorderes Knie über dem Fußgelenk", "Becken aufrichten: Po anspannen, Schambein nach vorne oben", "Hüfte leicht nach vorne schieben, Arm der Knie-Seite nach oben strecken"],
+    avoid: "Nicht ins Hohlkreuz ausweichen",
+    A: { h: [120, 24], s: [118, 38], p: [118, 82], e1: [104, 58], w1: [116, 80], e2: [106, 60], w2: [118, 82], k1: [152, 86], a1: [152, 128], t1: [164, 129], k2: [100, 127], a2: [70, 128], t2: [64, 122] },
+    B: { h: [127, 26], s: [125, 40], p: [127, 86], e1: [111, 60], w1: [124, 83], e2: [138, 18], w2: [150, -4], k1: [155, 88], a1: [152, 128], t1: [164, 129], k2: [100, 127], a2: [70, 128], t2: [64, 122] },
+  },
+  bridge_band: {
+    name: "Glute Bridge mit Miniband", cat: "Kraft", equip: ["Miniband", "Matte"], target: "Gluteus maximus und medius", anim: "rep", tempo: 3,
+    cues: ["Miniband knapp über den Knien", "Knie aktiv gegen das Band nach außen drücken", "Hüfte heben, bis Knie, Hüfte und Schulter eine Linie bilden, 1 s halten"],
+    avoid: "Nicht ins Hohlkreuz drücken, die Spannung kommt aus dem Po",
+    A: { h: [55, 118], s: [70, 122], p: [120, 122], e1: [92, 127], w1: [115, 128], e2: [94, 127], w2: [117, 128], k1: [152, 92], a1: [168, 126], t1: [180, 127], k2: [150, 94], a2: [166, 126], t2: [178, 127] },
+    B: { h: [55, 118], s: [72, 122], p: [124, 92], e1: [94, 127], w1: [117, 128], e2: [96, 127], w2: [119, 128], k1: [160, 86], a1: [168, 126], t1: [180, 127], k2: [158, 88], a2: [166, 126], t2: [178, 127] },
+    props: [{ type: "loop", on: ["p", "k1", .8] }],
+  },
+  clamshell: {
+    name: "Clamshell mit Miniband", cat: "Kraft", equip: ["Miniband", "Matte"], target: "Gluteus medius, Hüftaußenrotatoren", anim: "rep", tempo: 2.5, sides: true,
+    cues: ["Seitenlage, Hüfte etwa 45° und Knie 90° gebeugt", "Füße bleiben zusammen, Becken kippt nicht nach hinten", "Oberes Knie gegen das Band öffnen, kurz halten, langsam schließen"],
+    avoid: "Nicht mit dem Oberkörper nach hinten aufdrehen",
+    A: { h: [58, 106], s: [72, 112], p: [120, 112], e1: [90, 120], w1: [100, 128], e2: [60, 124], w2: [44, 112], k1: [142, 112], a1: [172, 118], t1: [182, 116], k2: [140, 122], a2: [172, 124], t2: [182, 122] },
+    B: { k1: [146, 86] },
+    props: [{ type: "band", from: ["p", "k1", .75], to: ["p", "k2", .75] }],
+  },
+  side_leg_raise: {
+    name: "Seitliches Beinheben", cat: "Kraft", equip: ["Matte"], target: "Gluteus medius", anim: "rep", tempo: 2.5, sides: true,
+    cues: ["Seitenlage, Körper in einer Linie, unteres Knie leicht gebeugt", "Oberes Bein minimal nach hinten, Fußspitze zeigt nach vorne", "Bein bis etwa 30° heben, ohne das Becken mitzudrehen"],
+    avoid: "Nicht mit der Hüfte nach vorne rollen, sonst übernimmt der TFL",
+    A: { h: [58, 104], s: [72, 110], p: [120, 112], e1: [95, 118], w1: [100, 128], e2: [60, 124], w2: [46, 110], k1: [158, 112], a1: [196, 116], t1: [200, 108], k2: [158, 120], a2: [194, 124], t2: [199, 117] },
+    B: { k1: [156, 98], a1: [190, 80], t1: [196, 73] },
+  },
+  lateral_walk: {
+    name: "Seitwärtsgehen mit Miniband", cat: "Kraft", equip: ["Miniband"], target: "Gluteus medius, Hüftstabilität", anim: "rep", tempo: 1.6, front: true,
+    cues: ["Miniband um die Fußgelenke, leichte Kniebeuge", "Oberkörper ruhig, Knie zeigen über die Fußspitzen", "Kleine Schritte seitwärts, Band bleibt immer gespannt, Richtung nach der Hälfte wechseln"],
+    avoid: "Knie nicht nach innen fallen lassen",
+    A: { h: [120, 16], s: [120, 30], p: [120, 72], e1: [100, 50], w1: [108, 68], e2: [140, 50], w2: [132, 68], k1: [104, 98], a1: [100, 128], t1: [94, 129], k2: [136, 98], a2: [140, 128], t2: [146, 129] },
+    B: { h: [114, 16], s: [114, 30], p: [114, 72], e1: [94, 50], w1: [102, 68], e2: [134, 50], w2: [126, 68], k1: [92, 98], a1: [80, 128], t1: [74, 129], k2: [132, 98], a2: [140, 128], t2: [146, 129] },
+    props: [{ type: "band", from: ["k1", "a1", .8], to: ["k2", "a2", .8] }],
+  },
+  dead_bug: {
+    name: "Dead Bug", cat: "Stabilität", equip: ["Matte"], target: "Tiefe Bauchmuskulatur, Kontrolle der Hüftbeuger", anim: "rep", tempo: 3,
+    cues: ["Rückenlage, Arme zur Decke, Hüfte und Knie 90° gebeugt", "Unterer Rücken bleibt auf der Matte", "Gegengleich Arm und Bein langsam strecken, dabei ausatmen, zurück, Seite wechseln"],
+    avoid: "Nicht ins Hohlkreuz, lieber das Bein weniger weit strecken",
+    A: { h: [56, 114], s: [70, 118], p: [118, 120], e1: [72, 92], w1: [74, 68], e2: [74, 92], w2: [76, 68], k1: [120, 86], a1: [152, 86], t1: [160, 80], k2: [122, 88], a2: [154, 88], t2: [162, 82] },
+    B: { e1: [48, 108], w1: [26, 110], k2: [155, 110], a2: [190, 116], t2: [196, 108] },
+  },
+  side_plank: {
+    name: "Seitstütz", cat: "Stabilität", equip: ["Matte"], target: "Seitliche Rumpfmuskulatur, Gluteus medius", anim: "hold", sides: true,
+    cues: ["Ellbogen genau unter der Schulter", "Hüfte hoch, Körper von Kopf bis Fuß in einer Linie", "Ruhig weiteratmen"],
+    avoid: "Hüfte nicht absinken oder nach hinten kippen lassen",
+    A: { h: [60, 94], s: [72, 102], p: [122, 112], e1: [95, 96], w1: [112, 108], e2: [70, 128], w2: [50, 128], k1: [160, 120], a1: [196, 126], t1: [200, 120], k2: [160, 122], a2: [196, 128], t2: [201, 124] },
+    B: { h: [60, 92], s: [72, 100], p: [122, 103], e1: [95, 90], w1: [112, 100], k1: [160, 114], k2: [160, 116] },
+  },
+  knee_drive_band: {
+    name: "Kniehub gegen Band", cat: "Kraft", equip: ["Langes Theraband"], target: "Iliopsoas, Kraft in der Endposition", anim: "rep", tempo: 3, sides: true,
+    cues: ["Band unter den Standfuß, Schlaufe um den anderen Fuß", "Aufrecht stehen, bei Bedarf an der Wand abstützen", "Knie über Hüfthöhe ziehen, 1 s halten, langsam senken"],
+    avoid: "Nicht nach hinten lehnen oder den Rücken rund machen",
+    A: { h: [120, 14], s: [118, 28], p: [118, 72], e1: [128, 50], w1: [140, 40], e2: [108, 50], w2: [104, 68], k1: [120, 100], a1: [118, 128], t1: [130, 129], k2: [118, 100], a2: [118, 128], t2: [130, 129] },
+    B: { k1: [150, 62], a1: [152, 94], t1: [164, 96] },
+    props: [{ type: "band", from: ["t1"], to: ["t2"] }],
+  },
+};
+
+const ROUTINES = [
+  { id: "loesen", name: "Hüfte lösen", focus: "Faszien und Dehnung", when: "nach langen Einheiten und an lockeren Tagen", items: [
+    { ex: "roll_tfl", mode: "time", sec: 60 },
+    { ex: "roll_quad", mode: "time", sec: 60 },
+    { ex: "hipflexor_stretch", mode: "time", sec: 45, sets: 2 },
+  ] },
+  { id: "stabil", name: "Hüfte stabil", focus: "Kraft und Stabilität", when: "2–3 Mal pro Woche an Ruhe- oder Grundlagentagen", items: [
+    { ex: "bridge_band", mode: "reps", reps: 12, sets: 2 },
+    { ex: "clamshell", mode: "reps", reps: 15, sets: 2 },
+    { ex: "side_leg_raise", mode: "reps", reps: 12, sets: 2 },
+    { ex: "lateral_walk", mode: "time", sec: 40, sets: 2 },
+    { ex: "dead_bug", mode: "reps", reps: 10, sets: 2 },
+    { ex: "side_plank", mode: "time", sec: 30, sets: 2 },
+    { ex: "knee_drive_band", mode: "reps", reps: 10, sets: 2 },
+  ] },
+  { id: "kurz", name: "Läufer-Kurzprogramm", focus: "Lösen und aktivieren", when: "direkt nach dem Laufen", items: [
+    { ex: "roll_tfl", mode: "time", sec: 45 },
+    { ex: "hipflexor_stretch", mode: "time", sec: 45 },
+    { ex: "clamshell", mode: "reps", reps: 15 },
+    { ex: "bridge_band", mode: "reps", reps: 15 },
+  ] },
+];
+const REST_SET = 30, REST_EX = 20, PREP_FIRST = 10, PREP_SIDE = 6;
+
+function buildPhases(r) {
+  const ph = [];
+  r.items.forEach((it, ii) => {
+    const ex = EX[it.ex], sets = it.sets || 1, sides = ex.sides ? ["links", "rechts"] : [null];
+    for (let s = 1; s <= sets; s++) sides.forEach((side, si) => {
+      const work = it.mode === "time" ? it.sec : Math.round(it.reps * ex.tempo);
+      const prep = !ph.length ? PREP_FIRST : si > 0 ? PREP_SIDE : 0;
+      if (prep) ph.push({ type: "prep", it, ex, set: s, sets, side, dur: prep, switch: si > 0 });
+      ph.push({ type: "work", it, ex, set: s, sets, side, dur: work, ii });
+      const lastSide = si === sides.length - 1, lastSet = s === sets, lastItem = ii === r.items.length - 1;
+      if (lastSide && !(lastSet && lastItem)) {
+        const nextEx = lastSet ? EX[r.items[ii + 1].ex] : ex;
+        ph.push({ type: "rest", it, ex: nextEx, nextIt: lastSet ? r.items[ii + 1] : it, set: lastSet ? 1 : s + 1, side: nextEx.sides ? "links" : null, dur: lastSet ? REST_EX : REST_SET, sets: lastSet ? (r.items[ii + 1].sets || 1) : sets });
+      }
+    });
+  });
+  return ph;
+}
+const routineMin = (r) => Math.round(buildPhases(r).reduce((s, p) => s + p.dur, 0) / 60);
+const doseTxt = (it) => it.mode === "time" ? `${it.sec} s` : `${it.reps} Wdh.`;
+
+// ---------- Figur ----------
+const LIMBS = [["far", ["s", "e2", "w2"]], ["far", ["p", "k2", "a2", "t2"]], ["torso", ["s", "p"]], ["near", ["p", "k1", "a1", "t1"]], ["near", ["s", "e1", "w1"]]];
+function figSvg(id) {
+  return `<svg class="fig" id="${id}" viewBox="0 -20 240 170" role="img" aria-label="Bewegungsanimation">
+    <rect x="16" y="130" width="208" height="6" rx="3" fill="var(--line)"/>
+    <g class="props"></g>
+    ${LIMBS.map(([c], i) => `<polyline class="${c}" data-i="${i}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}
+    <circle class="head" r="9"/>
+  </svg>`;
+}
+const ptOn = (pose, spec) => {
+  if (spec.length === 1) return pose[spec[0]];
+  const [a, b, f] = spec, A = pose[a], B = pose[b];
+  return [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f];
+};
+function drawFig(svg, ex, f, rollF = f) {
+  if (!svg) return;
+  const A = ex.A, B = { ...ex.A, ...(ex.B || {}) };
+  if (!ex._vb) { // Ausschnitt an die Übung anpassen
+    const pts = [...Object.values(A), ...Object.values(B), ...(ex.props || []).flatMap((p) => p.a ? [p.a, p.b] : [])];
+    const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+    const x0 = Math.min(16, Math.min(...xs) - 14), x1 = Math.max(224, Math.max(...xs) + 14), y0 = Math.min(...ys) - 18, y1 = 142;
+    const hgt = Math.max(y1 - y0, 90);
+    ex._vb = `${x0} ${y1 - hgt} ${x1 - x0} ${hgt}`;
+  }
+  if (svg.dataset.vb !== ex._vb) { svg.setAttribute("viewBox", ex._vb); svg.dataset.vb = ex._vb; }
+  const pose = {}; for (const k in A) pose[k] = [A[k][0] + (B[k][0] - A[k][0]) * f, A[k][1] + (B[k][1] - A[k][1]) * f];
+  svg.querySelectorAll("polyline").forEach((pl) => { pl.setAttribute("points", LIMBS[pl.dataset.i][1].map((k) => pose[k].join(",")).join(" ")); });
+  const hd = svg.querySelector(".head"); hd.setAttribute("cx", pose.h[0]); hd.setAttribute("cy", pose.h[1]);
+  svg.querySelector(".props").innerHTML = (ex.props || []).map((pr) => {
+    if (pr.type === "roller") { const x = pr.a[0] + (pr.b[0] - pr.a[0]) * rollF, y = pr.a[1] + (pr.b[1] - pr.a[1]) * rollF; return `<circle cx="${x}" cy="${y}" r="7" fill="var(--indoor)" opacity=".85"/>`; }
+    if (pr.type === "loop") { const [x, y] = ptOn(pose, pr.on); return `<ellipse cx="${x}" cy="${y}" rx="4" ry="8" fill="none" stroke="var(--z4)" stroke-width="3"/>`; }
+    if (pr.type === "band") { const [x1, y1] = ptOn(pose, pr.from), [x2, y2] = ptOn(pose, pr.to); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--z4)" stroke-width="3.5" stroke-linecap="round"/>`; }
+    return "";
+  }).join("");
+}
+// Bewegungsverlauf 0..1 je Animationsart; t in Sekunden seit Start der Wiederholung bzw. Übung
+function animF(ex, t) {
+  const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  if (ex.anim === "rep") { const c = (t % ex.tempo) / ex.tempo; return c < .4 ? ease(c / .4) : c < .6 ? 1 : ease(1 - (c - .6) / .4); }
+  if (ex.anim === "stretch") return ease(Math.min(1, t / 3));
+  if (ex.anim === "hold") return .8 + .2 * Math.sin(t * 1.2) * .5 + .1;
+  if (ex.anim === "roll") { const c = (t % 4) / 4; return ease(c < .5 ? c * 2 : 2 - c * 2); }
+  return 0;
+}
+
+// ---------- Protokoll (lokal im Browser) ----------
+const LOG_KEY = "stabiLog";
+const readLog = () => { try { return JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch { return []; } };
+const writeLog = (e) => { try { const l = readLog(); l.push(e); localStorage.setItem(LOG_KEY, JSON.stringify(l.slice(-300))); } catch {} };
+
+function stabiSuggestion() {
+  const t = today(), y = addDays(t, -1);
+  const log = readLog(), week = log.filter((e) => weekKey(e.date) === weekKey(t));
+  const doneToday = log.some((e) => e.date === t);
+  const runToday = P?.ws.some((w) => w.date === t && w.sport === "run");
+  const longYesterday = P?.ws.some((w) => (w.date === y || w.date === t) && w.durationSec >= 75 * 60);
+  const stabilWeek = week.filter((e) => e.id === "stabil").length;
+  let id, why;
+  if (doneToday) return { id: null, why: "Heute schon erledigt.", week };
+  if (runToday) { id = "kurz"; why = "Du bist heute gelaufen: Jetzt lösen und die Hüfte kurz aktivieren."; }
+  else if (longYesterday) { id = "loesen"; why = "Nach der langen Einheit: Hüftbeuger und TFL lösen."; }
+  else if (R && R.level <= 1) { id = "loesen"; why = "Lockerer Tag: Mobilität statt Kraft."; }
+  else if (stabilWeek < 2) { id = "stabil"; why = `Diese Woche ${stabilWeek} von 2 Krafteinheiten für die Hüfte.`; }
+  else { id = "loesen"; why = "Kraftziel der Woche erreicht, heute nur lösen."; }
+  return { id, why, week };
+}
+
+// ---------- Ansichten ----------
+function viewStabi() {
+  document.getElementById("title").textContent = "Stabi";
+  const sg = stabiSuggestion(), log = readLog();
+  const days = [...Array(14)].map((_, i) => addDays(today(), i - 13));
+  document.getElementById("view").innerHTML = `
+    <section>
+      <div class="sechead"><h2>Heute empfohlen</h2></div>
+      ${sg.id ? routineCard(ROUTINES.find((r) => r.id === sg.id), sg.why, true) : `<p class="muted">${sg.why}</p>`}
+    </section>
+    <section>
+      <div class="sechead"><h2>Deine letzten 14 Tage</h2></div>
+      <div class="panel"><div class="streak">${days.map((d) => { const e = log.filter((x) => x.date === d); return `<div class="${e.length ? "on" : ""}" title="${fmtDate(d)}${e.length ? ": " + e.map((x) => ROUTINES.find((r) => r.id === x.id)?.name).join(", ") : ""}"><i></i><span>${fmtDate(d, { weekday: "narrow" })}</span></div>`; }).join("")}</div>
+      <p class="note">Diese Woche ${sg.week.length} Einheit${sg.week.length === 1 ? "" : "en"}. Gespeichert nur in diesem Browser.</p></div>
+    </section>
+    <section>
+      <div class="sechead"><h2>Programme</h2></div>
+      ${ROUTINES.filter((r) => r.id !== sg.id).map((r) => routineCard(r)).join("")}
+    </section>
+    <section>
+      <div class="sechead"><h2>Übungen</h2></div>
+      <div class="list">${Object.entries(EX).map(([k, e]) => `<a class="row" href="#stabi/ex/${k}"><span class="ic" style="background:var(${e.cat === "Kraft" ? "--run" : e.cat === "Stabilität" ? "--ride" : "--indoor"})"></span><span><span class="t">${e.name}</span><br><span class="s">${e.cat} · ${e.equip.join(", ")}</span></span><span class="r"><small>›</small></span></a>`).join("")}</div>
+      <p class="note">Bei stechendem Schmerz abbrechen. Dehn- und Rolldruck soll deutlich, aber gut aushaltbar sein.</p>
+    </section>`;
+}
+function routineCard(r, why, primary) {
+  const eq = [...new Set(r.items.flatMap((i) => EX[i.ex].equip))];
+  return `<div class="panel routine${primary ? " primary" : ""}">
+    <div class="rhead"><div><h3>${r.name}</h3><p class="muted">${r.focus} · ca. ${routineMin(r)} min</p></div>
+    <a class="btn" href="#stabi/play/${r.id}">Starten</a></div>
+    ${why ? `<p class="why1">${why}</p>` : `<p class="muted small">Ideal ${r.when}.</p>`}
+    <ol class="exlist">${r.items.map((i) => `<li><a href="#stabi/ex/${i.ex}">${EX[i.ex].name}</a><span>${i.sets > 1 ? `${i.sets} × ` : ""}${doseTxt(i)}${EX[i.ex].sides ? " je Seite" : ""}</span></li>`).join("")}</ol>
+    <p class="note">Material: ${eq.join(", ")}</p></div>`;
+}
+let previewRaf = null;
+function viewExercise(k) {
+  const e = EX[k]; if (!e) { location.hash = "#stabi"; return; }
+  document.getElementById("title").textContent = e.name;
+  document.getElementById("appbar").classList.add("detail");
+  document.getElementById("back").textContent = "‹ Stabi";
+  document.getElementById("view").innerHTML = `
+    <div class="figbox">${figSvg("figPrev")}</div>
+    <section>
+      <p class="muted">${e.cat} · ${e.target}</p>
+      <ol class="cues">${e.cues.map((c) => `<li>${c}</li>`).join("")}</ol>
+      <p class="avoid">${e.avoid}</p>
+      <p class="note">Material: ${e.equip.join(", ")}${e.sides ? " · je Seite" : ""}</p>
+    </section>`;
+  const svg = document.getElementById("figPrev"), t0 = performance.now();
+  const loop = () => { const t = (performance.now() - t0) / 1000; drawFig(svg, e, e.anim === "stretch" ? animF(e, t % 8) : animF(e, t), animF({ anim: "roll" }, t)); previewRaf = requestAnimationFrame(loop); };
+  loop();
+}
+
+// ---------- Player ----------
+let PL = null;
+const Audio = {
+  ctx: null, on: true, voice: true,
+  unlock() { try { this.ctx ||= new (window.AudioContext || window.webkitAudioContext)(); this.ctx.resume(); } catch {} },
+  beep(freq = 880, dur = .12, vol = .25) {
+    if (!this.on || !this.ctx) return;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain(), t = this.ctx.currentTime;
+    o.type = "sine"; o.frequency.value = freq; o.connect(g); g.connect(this.ctx.destination);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+    o.start(t); o.stop(t + dur + .02);
+  },
+  say(txt) {
+    if (!this.voice || !("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(txt); u.lang = "de-DE"; u.rate = 1.02;
+    const v = speechSynthesis.getVoices().find((x) => x.lang?.startsWith("de")); if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  },
+};
+const sideTxt = (s) => s === "links" ? "linke Seite" : s === "rechts" ? "rechte Seite" : "";
+
+function viewPlayer(id) {
+  const r = ROUTINES.find((x) => x.id === id); if (!r) { location.hash = "#stabi"; return; }
+  document.getElementById("title").textContent = r.name;
+  document.getElementById("appbar").classList.add("detail");
+  document.getElementById("back").textContent = "‹ Stabi";
+  const phases = buildPhases(r), total = phases.reduce((s, p) => s + p.dur, 0);
+  PL = { r, phases, i: 0, elapsed: 0, running: false, started: false, last: null, marks: {}, total, raf: null, lock: null };
+  document.getElementById("view").innerHTML = `
+    <div class="player">
+      <div class="pbar" aria-hidden="true"><i id="plTotal"></i></div>
+      <p class="plmeta"><span id="plCount"></span><span id="plLeft"></span></p>
+      <div class="figbox">${figSvg("figPlay")}</div>
+      <p class="plphase" id="plPhase">Bereit</p>
+      <h2 id="plName"></h2>
+      <p class="plside" id="plSide"></p>
+      <div class="plbig" id="plBig" aria-live="polite"></div>
+      <div class="pbar thin" aria-hidden="true"><i id="plPhaseBar"></i></div>
+      <ol class="cues" id="plCues"></ol>
+      <p class="plnext" id="plNext"></p>
+      <div class="plctl">
+        <button id="plPrev" aria-label="Zurück">⏮</button>
+        <button id="plPlay" class="main" aria-label="Start">Start</button>
+        <button id="plSkip" aria-label="Überspringen">⏭</button>
+      </div>
+      <div class="pltog">
+        <button id="plSound" aria-pressed="true">Signaltöne</button>
+        <button id="plVoice" aria-pressed="true">Sprachansage</button>
+      </div>
+    </div>`;
+  const $ = (x) => document.getElementById(x);
+  $("plSound").setAttribute("aria-pressed", Audio.on); $("plVoice").setAttribute("aria-pressed", Audio.voice);
+  $("plSound").onclick = () => { Audio.on = !Audio.on; $("plSound").setAttribute("aria-pressed", Audio.on); };
+  $("plVoice").onclick = () => { Audio.voice = !Audio.voice; $("plVoice").setAttribute("aria-pressed", Audio.voice); if (!Audio.voice) speechSynthesis?.cancel(); };
+  $("plPlay").onclick = () => { Audio.unlock(); PL.running ? plPause() : plStart(); };
+  $("plSkip").onclick = () => plGoto(PL.i + 1);
+  $("plPrev").onclick = () => plGoto(PL.elapsed > 3 ? PL.i : Math.max(0, PL.i - 1));
+  plRender(0);
+}
+async function plStart() {
+  PL.running = true; PL.last = performance.now();
+  document.getElementById("plPlay").textContent = "Pause";
+  try { PL.lock = await navigator.wakeLock?.request("screen"); } catch {}
+  if (!PL.started) { PL.started = true; plAnnounce(); }
+  plLoop();
+}
+function plPause() {
+  PL.running = false; cancelAnimationFrame(PL.raf);
+  document.getElementById("plPlay").textContent = "Weiter";
+  speechSynthesis?.cancel();
+}
+function plStop() {
+  if (!PL) return;
+  cancelAnimationFrame(PL.raf); try { PL.lock?.release(); } catch {} speechSynthesis?.cancel(); PL = null;
+}
+function plGoto(i) {
+  if (i >= PL.phases.length) return plFinish();
+  PL.i = i; PL.elapsed = 0; PL.marks = {}; PL.last = performance.now();
+  if (PL.running) plAnnounce(); plRender(0);
+}
+function plAnnounce() {
+  const p = PL.phases[PL.i], dose = p.it.mode === "time" ? `${p.it.sec} Sekunden` : `${p.it.reps} Wiederholungen`;
+  if (p.type === "prep") Audio.say(p.switch ? `Seite wechseln. ${sideTxt(p.side)}.` : `${p.ex.name}. ${p.side ? sideTxt(p.side) + ". " : ""}${dose}.`);
+  if (p.type === "work") Audio.beep(1320, .35, .3);
+  if (p.type === "rest") { Audio.beep(660, .2); Audio.say(`Pause. Als Nächstes: ${p.ex.name}${p.side ? ", " + sideTxt(p.side) : ""}. ${p.nextIt.mode === "time" ? p.nextIt.sec + " Sekunden" : p.nextIt.reps + " Wiederholungen"}.`); }
+}
+function plLoop() {
+  if (!PL || !PL.running) return;
+  const now = performance.now(); PL.elapsed += (now - PL.last) / 1000; PL.last = now;
+  const p = PL.phases[PL.i], left = p.dur - PL.elapsed;
+  // Countdown-Signale in den letzten 3 Sekunden von Vorbereitung, Pause und Halteübungen
+  const sec = Math.ceil(left);
+  if ((p.type !== "work" || p.it.mode === "time") && sec <= 3 && sec >= 1 && !PL.marks["c" + sec]) { PL.marks["c" + sec] = 1; Audio.beep(880, .12); }
+  if (p.type === "work" && p.it.mode === "time" && p.dur >= 30 && PL.elapsed >= p.dur / 2 && !PL.marks.half) { PL.marks.half = 1; Audio.beep(990, .1); setTimeout(() => Audio.beep(990, .1), 160); if (p.it.ex === "lateral_walk") Audio.say("Richtung wechseln"); }
+  if (p.type === "work" && p.it.mode === "reps") {
+    const rep = Math.floor(PL.elapsed / p.ex.tempo) + 1;
+    if (rep <= p.it.reps && !PL.marks["r" + rep]) { PL.marks["r" + rep] = 1; if (rep > 1) Audio.beep(520, .08, .18); if (p.it.reps - rep === 2) Audio.say("noch drei"); }
+  }
+  if (left <= 0) {
+    if (p.type === "work") { Audio.beep(1320, .12); setTimeout(() => Audio.beep(1320, .18), 170); }
+    if (PL.i + 1 >= PL.phases.length) return plFinish();
+    PL.i++; PL.elapsed = 0; PL.marks = {}; plAnnounce();
+  }
+  plRender(PL.elapsed);
+  PL.raf = requestAnimationFrame(plLoop);
+}
+function plRender(el) {
+  const p = PL.phases[PL.i], $ = (x) => document.getElementById(x);
+  if (!$("plName")) return;
+  const done = PL.phases.slice(0, PL.i).reduce((s, x) => s + x.dur, 0) + el;
+  $("plTotal").style.width = `${Math.min(100, done / PL.total * 100)}%`;
+  const curIt = p.type === "rest" ? p.nextIt : p.it;
+  $("plCount").textContent = `Übung ${PL.r.items.indexOf(curIt) + 1} von ${PL.r.items.length}`;
+  $("plLeft").textContent = `noch ${fmtClock(PL.total - done)}`;
+  $("plPhase").textContent = { prep: p.switch ? "Seite wechseln" : "Vorbereiten", work: "Los", rest: "Pause" }[p.type];
+  $("plPhase").className = `plphase ${p.type}`;
+  $("plName").textContent = p.ex.name;
+  $("plSide").textContent = [p.side ? sideTxt(p.side).replace(/^./, (c) => c.toUpperCase()) : "", p.sets > 1 ? `Satz ${p.set} von ${p.sets}` : ""].filter(Boolean).join(" · ");
+  const left = Math.max(0, p.dur - el);
+  if (p.type === "work" && p.it.mode === "reps") $("plBig").innerHTML = `${Math.min(p.it.reps, Math.floor(el / p.ex.tempo) + 1)}<small> / ${p.it.reps}</small>`;
+  else $("plBig").innerHTML = `${Math.ceil(left)}<small> s</small>`;
+  $("plPhaseBar").style.width = `${Math.min(100, el / p.dur * 100)}%`;
+  $("plCues").innerHTML = p.ex.cues.map((c) => `<li>${c}</li>`).join("");
+  const nxt = PL.phases.slice(PL.i + 1).find((x) => x.type === "work");
+  $("plNext").textContent = p.type === "rest" ? `Gleich: ${p.ex.name}${p.side ? ", " + sideTxt(p.side) : ""}` : nxt ? `Danach: ${nxt.ex.name}${nxt.side ? ", " + sideTxt(nxt.side) : ""}` : "Letzte Übung";
+  const f = p.type === "work" ? animF(p.ex, el) : 0;
+  drawFig($("figPlay"), p.ex, f, p.type === "work" ? animF({ anim: "roll" }, el) : 0);
+}
+function plFinish() {
+  const r = PL.r;
+  writeLog({ date: today(), id: r.id, min: routineMin(r) });
+  Audio.beep(1320, .15); setTimeout(() => Audio.beep(1760, .3), 180); Audio.say("Geschafft. Gut gemacht.");
+  plStop();
+  document.getElementById("view").innerHTML = `<div class="empty"><h2>Geschafft</h2><p class="muted">${r.name}, ca. ${routineMin(r)} min. Die Einheit ist gespeichert.</p><p style="margin-top:16px"><a class="btn" href="#stabi">Zur Übersicht</a></p></div>`;
+}
+
 // ================= Trainingsempfehlung =================
 function recommend(P, R, I) {
   const { ws, series, hr } = P, rec = I.rec, t = today();
@@ -457,6 +1033,8 @@ function recommend(P, R, I) {
   const durOf = (s, q) => quantile(recent56.filter((w) => w.sport === s).map((w) => w.durationSec / 60), q);
   const z = { run: hr.zoneBpm("run"), bike: hr.zoneBpm("bike") };
   const zr = (fam, a, b) => `${z[fam][a]}–${z[fam][b]} bpm`;
+  const csv = P.perf?.cs?.cs;
+  const pr = (lo, hi) => csv ? ` bzw. ${fmtPace(1000 / (hi * csv))}–${fmtPace(1000 / (lo * csv))} /km` : "";
 
   // Wochenziel: Belastung halten bzw. moderat steigern (ACWR 0,8–1,3)
   const ctlWeek = last.ctl * 7;
@@ -494,9 +1072,9 @@ function recommend(P, R, I) {
       const fam = runHeavy ? "bike" : hardRunShare > .5 ? "bike" : "run";
       const sport = fam === "run" ? "run" : "indoor";
       let what, how;
-      if ((rec.midShare ?? 0) > 25) { what = "Schwellenintervalle"; how = `4 × 8 min in Z4 (${zr(fam, 3, 4)}), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2 (${zr(fam, 1, 2)}).`; why.push(`Du verbringst ${nf(rec.midShare)} % der Zeit in Z3. Gezielte Schwellenarbeit bringt mehr als weiteres Tempo „dazwischen“.`); }
-      else if ((rec.easyShare ?? 0) >= 75 && (rec.efTrend ?? 0) < 1.5) { what = "VO₂max-Intervalle"; how = `5 × 3 min in Z5 (ab ${z[fam][4]} bpm), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2.`; why.push(`Viel Grundlage (${nf(rec.easyShare)} % locker), aber die Ökonomie stagniert. Ein kurzer, harter Reiz fehlt.`); }
-      else { what = fam === "run" ? "Tempodauerlauf" : "Sweet-Spot-Intervalle"; how = fam === "run" ? `20–30 min am oberen Ende von Z3 bis Z4 (${z.run[2] + 8}–${z.run[3] + 5} bpm), davor und danach 15 min Z2.` : `3 × 12 min bei ${z.bike[2] + 5}–${z.bike[3] + 3} bpm, 4 min locker dazwischen.`; why.push(rec.easyShare != null ? `Deine Intensitätsverteilung passt (${nf(rec.easyShare)} % locker). Eine Tempo-Einheit hält die Entwicklung am Laufen.` : "Noch keine Zonendaten, daher eine moderate Tempo-Einheit."); }
+      if ((rec.midShare ?? 0) > 25) { what = "Schwellenintervalle"; how = `4 × 8 min in Z4 (${zr(fam, 3, 4)}${fam === "run" ? pr(.97, 1.0) : ""}), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2 (${zr(fam, 1, 2)}).`; why.push(`Du verbringst ${nf(rec.midShare)} % der Zeit in Z3. Gezielte Schwellenarbeit bringt mehr als weiteres Tempo „dazwischen“.`); }
+      else if ((rec.easyShare ?? 0) >= 75 && (rec.efTrend ?? 0) < 1.5) { what = "VO₂max-Intervalle"; how = `5 × 3 min in Z5 (ab ${z[fam][4]} bpm${fam === "run" ? pr(1.05, 1.1) : ""}), 3 min locker dazwischen. Ein- und Auslaufen je 15 min in Z2.`; why.push(`Viel Grundlage (${nf(rec.easyShare)} % locker), aber die Ökonomie stagniert. Ein kurzer, harter Reiz fehlt.`); }
+      else { what = fam === "run" ? "Tempodauerlauf" : "Sweet-Spot-Intervalle"; how = fam === "run" ? `20–30 min am oberen Ende von Z3 bis Z4 (${z.run[2] + 8}–${z.run[3] + 5} bpm${pr(.9, .95)}), davor und danach 15 min Z2.` : `3 × 12 min bei ${z.bike[2] + 5}–${z.bike[3] + 3} bpm, 4 min locker dazwischen.`; why.push(rec.easyShare != null ? `Deine Intensitätsverteilung passt (${nf(rec.easyShare)} % locker). Eine Tempo-Einheit hält die Entwicklung am Laufen.` : "Noch keine Zonendaten, daher eine moderate Tempo-Einheit."); }
       s = { kind: "hard", what: `${what} · ${SPORTS[sport].label}`, how, color: SPORTS[sport].color };
       why.push(`Letzte harte Einheit vor ${daysSinceHard >= 99 ? "über zwei Wochen" : daysSinceHard + " Tagen"}. Du brauchst laut deinem Ruhepuls ${recoveryDays} Tag${recoveryDays > 1 ? "e" : ""} zur Erholung.`);
       if (fam === "bike" && runHeavy) why.push("Die Laufbelastung der letzten Tage ist hoch, auf dem Rad schonst du die Beine.");
@@ -508,7 +1086,7 @@ function recommend(P, R, I) {
       const base = durOf(sport, .5) ?? (fam === "run" ? 45 : 60), lng = durOf(sport, .8) ?? base * 1.5;
       const mins = long ? round5(Math.min(lng * 1.1, fam === "run" ? 150 : 240)) : round5(Math.max(30, R.level === 1 ? base * .75 : base));
       s = { kind: long ? "long" : "easy", what: `${long ? "Lange Grundlage" : "Lockere Grundlage"} · ${SPORTS[sport].label}`,
-        how: `${mins} min in Z2 (${zr(fam, 1, 2)}).${long ? " Gleichmäßig, bei Anstiegen Tempo rausnehmen statt Puls hochzutreiben." : " Du solltest dich dabei problemlos unterhalten können."}`, color: SPORTS[sport].color };
+        how: `${mins} min in Z2 (${zr(fam, 1, 2)}${fam === "run" ? pr(.78, .86) : ""}).${long ? " Gleichmäßig, bei Anstiegen Tempo rausnehmen statt Puls hochzutreiben." : " Du solltest dich dabei problemlos unterhalten können."}`, color: SPORTS[sport].color };
       if (R.level === 1) why.push("Die Erholungssignale sprechen heute gegen hohe Intensität.");
       if (daysSinceHard < recoveryDays) why.push(`Letzte harte Einheit vor ${daysSinceHard} Tag${daysSinceHard === 1 ? "" : "en"}, du brauchst im Schnitt ${recoveryDays} Tag${recoveryDays > 1 ? "e" : ""} zur Erholung.`);
       if (hardThisWeek >= 2) why.push("Diese Woche hattest du schon zwei harte Einheiten, mehr bringt selten mehr.");
@@ -571,12 +1149,18 @@ const zoneBandsPlugin = {
 
 function route() {
   const h = location.hash.replace(/^#/, "") || "heute";
-  const [tab, id] = h.split("/");
+  const [tab, id, id2] = h.split("/");
   const appbar = document.getElementById("appbar"), view = document.getElementById("view");
-  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === (tab === "einheit" ? "einheiten" : tab) ? "page" : "false"));
+  const navTab = tab === "einheit" ? "einheiten" : tab;
+  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === navTab ? "page" : "false"));
   appbar.classList.toggle("detail", tab === "einheit");
-  destroyCharts();
+  document.getElementById("back").textContent = "‹ Einheiten";
+  destroyCharts(); plStop(); cancelAnimationFrame(previewRaf);
   view.style.animation = "none"; void view.offsetWidth; view.style.animation = "";
+  if (tab === "stabi") {
+    if (id === "play") viewPlayer(id2); else if (id === "ex") viewExercise(id2); else viewStabi();
+    window.scrollTo(0, 0); return;
+  }
   if (!P || !P.ws.length) { document.getElementById("title").textContent = "Trainingssteuerung"; view.innerHTML = emptyView(); return; }
   const titles = { heute: "Heute", einheiten: "Einheiten", fortschritt: "Fortschritt", analyse: "Analyse" };
   if (tab === "einheit" && P.byId[id]) viewDetail(P.byId[id]);
@@ -617,6 +1201,7 @@ function viewToday() {
         </div>
         <div class="outlook">${REC.outlook.map((o) => `<div><b>${fmtDate(o.d, { weekday: "short" })}</b>${o.txt}</div>`).join("")}</div>
       </div>
+      ${(() => { const sg = stabiSuggestion(); if (!sg.id) return ""; const r = ROUTINES.find((x) => x.id === sg.id); return `<div class="panel" style="margin-top:10px"><div class="rhead"><div><h3>Stabi: ${r.name}</h3><p class="muted small">${sg.why} Ca. ${routineMin(r)} min.</p></div><a class="btn" href="#stabi/play/${r.id}">Starten</a></div></div>`; })()}
     </section>
   </div>
   <section>
@@ -627,9 +1212,9 @@ function viewToday() {
   <section>
     <div class="sechead"><h2>Deine Pulszonen</h2></div>
     <div class="panel tablewrap"><table>
-      <thead><tr><th>Zone</th><th class="num">Laufen</th><th class="num">Rad</th></tr></thead>
-      <tbody>${ZONES.map((zn, i) => `<tr><td><span class="dot" style="background:var(--z${i + 1})"></span>${zn}</td><td class="num">${REC.z.run[i]}–${REC.z.run[i + 1]}</td><td class="num">${REC.z.bike[i]}–${REC.z.bike[i + 1]}</td></tr>`).join("")}</tbody>
-    </table><p class="note">${hrNote()}</p></div>
+      <thead><tr><th>Zone</th><th class="num">Puls Laufen</th><th class="num">Puls Rad</th>${P.perf.zonesPace ? `<th class="num">Pace Laufen</th>` : ""}</tr></thead>
+      <tbody>${ZONES.map((zn, i) => { const zp = P.perf.zonesPace; const pace = !zp ? "" : i === 0 ? `ab ${fmtPace(zp[1])}` : i === 4 ? `unter ${fmtPace(zp[4])}` : `${fmtPace(zp[i + 1])}–${fmtPace(zp[i])}`; return `<tr><td><span class="dot" style="background:var(--z${i + 1})"></span>${zn}</td><td class="num">${REC.z.run[i]}–${REC.z.run[i + 1]}</td><td class="num">${REC.z.bike[i]}–${REC.z.bike[i + 1]}</td>${zp ? `<td class="num">${pace}</td>` : ""}</tr>`; }).join("")}</tbody>
+    </table>${P.perf.zonesPace ? `<p class="note">Pace-Zonen aus deiner Critical Speed (${fmtPace(1000 / P.perf.cs.cs)} /km), steigungsbereinigt zu verstehen.</p>` : ""}<p class="note">${hrNote()}</p></div>
   </section>
   <section>
     <div class="sechead"><h2>Diese Woche</h2></div>
@@ -641,7 +1226,7 @@ function viewToday() {
 
 function hrNote() {
   const h = P.hr;
-  return `Max. Puls Laufen ${h.byFam.run.value}${h.byFam.run.own ? "" : "*"}, Rad ${h.byFam.bike.value}${h.byFam.bike.own ? "" : "*"} bpm: höchster plausibler Wert aus ${h.global.n} Einheiten der letzten 2 Jahre, einzelne Ausreißer ignoriert.`
+  return `Max. Puls Laufen ${h.byFam.run.value}${h.byFam.run.own ? "" : "*"}, Rad ${h.byFam.bike.value}${h.byFam.bike.own ? "" : "*"} bpm: höchster geglätteter Wert (15 s) aus ${h.global.n} Einheiten der letzten 2 Jahre, der von einer zweiten Einheit bestätigt wird.`
     + (h.byFam.run.own && h.byFam.bike.own ? "" : " * unter 8 Einheiten dieser Sportart, daher sportartübergreifend.")
     + (h.globalRest ? ` Ruhepuls: Median der Nachtwerte der letzten 30 Tage, aktuell ${nf(h.restAt(today()))} bpm.` : " Keine Ruhepuls-Daten, Belastung mit 60 bpm geschätzt.")
     + " Nie ausgereizter Maximalpuls lässt die Zonen zu niedrig ausfallen.";
@@ -714,12 +1299,15 @@ function viewDetail(w) {
   }
 
   const kpi = (b, s) => `<div><b>${b}</b><span>${s}</span></div>`;
+  const gapKm = (x) => { if (!w.gapSeries || !x.cumSec) return null; const from = x.cumSec - x.paceSec; const v = mean(w.gapSeries.filter(([t]) => t >= from && t < x.cumSec).map(([, s]) => s)); return v ? 1000 / v : null; };
+  const hasGap = isRun && w.gapSeries && w.splits?.some((x) => x.cumSec);
   document.getElementById("view").innerHTML = `
     <section>
       <div class="kpis">
         ${kpi(fmtDur(w.durationSec), "Dauer")}
         ${kpi(w.distanceM ? nf(w.distanceM / 1000, 2) + " km" : "–", "Distanz")}
         ${kpi(tempoTxt(w), isRun ? "Ø Pace" : "Ø Tempo")}
+        ${isRun && w.gapSpeed ? kpi(fmtPace(1000 / w.gapSpeed) + " /km", "Pace steigungsbereinigt") : ""}
         ${kpi(w.avgHr ? `${w.avgHr}` : "–", `Ø Puls${w.maxHr ? `, max ${w.maxHr}` : ""}`)}
         ${kpi(nf(w.load), "Belastung")}
         ${kpi(w.te ? nf(w.te, 1) : "–", "Trainingseffekt")}
@@ -738,9 +1326,9 @@ function viewDetail(w) {
     ${w.zones ? `<section><div class="sechead"><h2>Zeit in Zonen</h2></div><div class="chartbox"><canvas id="cWZones"></canvas></div></section>` : ""}
     ${w.splits && w.splits.length >= 2 ? `<section><div class="sechead"><h2>Kilometer</h2></div>
       <div class="chartbox"><canvas id="cSplits"></canvas></div>
-      <div class="panel tablewrap" style="margin-top:12px"><table><thead><tr><th>km</th><th class="num">${isRun ? "Pace" : "Tempo"}</th><th class="num">Ø Puls</th>${isRun ? `<th class="num">Kadenz</th>` : ""}<th class="num">Zeit gesamt</th></tr></thead><tbody>
-      ${w.splits.map((x) => `<tr><td>${x.km}</td><td class="num">${isRun ? fmtPace(x.paceSec) + " /km" : nf(3600 / x.paceSec, 1) + " km/h"}</td><td class="num">${x.hr ?? "–"}</td>${isRun ? `<td class="num">${x.cadence ?? "–"}</td>` : ""}<td class="num">${x.cumSec ? fmtDur(x.cumSec) : "–"}</td></tr>`).join("")}
-      </tbody></table><p class="note">Nur volle Kilometer.</p></div></section>` : ""}
+      <div class="panel tablewrap" style="margin-top:12px"><table><thead><tr><th>km</th><th class="num">${isRun ? "Pace" : "Tempo"}</th>${hasGap ? `<th class="num">bereinigt</th>` : ""}<th class="num">Ø Puls</th>${isRun ? `<th class="num">Kadenz</th>` : ""}<th class="num">Zeit gesamt</th></tr></thead><tbody>
+      ${w.splits.map((x) => `<tr><td>${x.km}</td><td class="num">${isRun ? fmtPace(x.paceSec) + " /km" : nf(3600 / x.paceSec, 1) + " km/h"}</td>${hasGap ? `<td class="num">${fmtPace(gapKm(x))}</td>` : ""}<td class="num">${x.hr ?? "–"}</td>${isRun ? `<td class="num">${x.cadence ?? "–"}</td>` : ""}<td class="num">${x.cumSec ? fmtDur(x.cumSec) : "–"}</td></tr>`).join("")}
+      </tbody></table><p class="note">Nur volle Kilometer.${hasGap ? " „Bereinigt“: Pace auf flache Strecke umgerechnet." : ""}</p></div></section>` : ""}
     <section class="grid2">
       <div>
         <div class="sechead"><h2>Zustand am Tag</h2></div>
@@ -773,11 +1361,13 @@ function viewDetail(w) {
     const sets = [{ label: "Puls", data: ser.map(([t, h]) => ({ x: t / 60, y: h })), borderColor: css("--neg"), borderWidth: 1.8, pointRadius: 0, tension: .2, yAxisID: "y" }];
     if (sp) sets.push({ label: isRun ? "Pace" : "Tempo", data: w.speedSeries.map(([t, v]) => ({ x: t / 60, y: tempo(v) })).filter((p) => p.y != null && (!isRun || p.y < 900)),
       borderColor: css(SPORTS[w.sport].color), borderWidth: 1.2, pointRadius: 0, tension: .3, yAxisID: "y2" });
+    if (sp && isRun && w.gapSeries) sets.push({ label: "Pace steigungsbereinigt", data: w.gapSeries.map(([t, v]) => ({ x: t / 60, y: tempo(v) })).filter((p) => p.y != null && p.y < 900),
+      borderColor: css("--ink"), borderDash: [4, 3], borderWidth: 1.2, pointRadius: 0, tension: .3, yAxisID: "y2" });
     mk("cHr", {
       type: "line", data: { datasets: sets },
       options: baseOpts({
         plugins: { legend: sp ? legendBottom : { display: false }, zoneBands: { bands: [0, 1, 2, 3, 4].map((i) => [zb[i], zb[i + 1], css(`--z${i + 1}`)]) },
-          tooltip: { callbacks: { title: (i) => `Minute ${nf(i[0].parsed.x, 1)}`, label: (c) => c.dataset.yAxisID === "y2" ? (isRun ? `Pace ${fmtPace(c.parsed.y)} /km` : `${nf(c.parsed.y, 1)} km/h`) : `Puls ${c.parsed.y} bpm` } } },
+          tooltip: { callbacks: { title: (i) => `Minute ${nf(i[0].parsed.x, 1)}`, label: (c) => c.dataset.yAxisID === "y2" ? (isRun ? `${c.dataset.label} ${fmtPace(c.parsed.y)} /km` : `${nf(c.parsed.y, 1)} km/h`) : `Puls ${c.parsed.y} bpm` } } },
         scales: {
           x: { type: "linear", title: ax("Minuten"), grid: { display: false }, ticks: { maxTicksLimit: 8, callback: (v) => nf(v) } },
           y: { title: ax("Puls (bpm)"), suggestedMin: zb[0] - 10, suggestedMax: zb[5] },
@@ -816,6 +1406,41 @@ function viewDetail(w) {
 
 // ---------- Fortschritt ----------
 function lastWeeks(n) { const w0 = weekKey(today()); return Array.from({ length: n }, (_, i) => addDays(w0, -7 * (n - 1 - i))); }
+function perfCardsHtml() {
+  const pf = P.perf;
+  if (!pf.cs) return `<p class="muted">Noch keine ausreichenden Bestleistungen. Nötig sind Läufe mit Tempoverlauf und mindestens eine zügige Dauerbelastung von 20 Minuten.</p>`;
+  const d = (a, b) => a && b ? ` <small class="${a < b ? "up" : "down"}">${a < b ? "−" : "+"}${fmtClock(Math.abs(a - b))}</small>` : "";
+  const q = { hoch: "Die Bestleistungen stammen aus harten Belastungen, die Werte sind belastbar.", mittel: "Einige Bestleistungen stammen nicht aus Maximalbelastungen, die Werte sind eher zu vorsichtig.", niedrig: "Deine Läufe enthalten kaum harte Belastungen. Schwelle und Prognose sind deshalb deutlich zu vorsichtig. Ein Testlauf, z. B. 3 min und 12 min all-out mit Pause dazwischen, macht sie genau." }[pf.cs.quality];
+  return `<div class="cards3">
+      <div class="card"><b>${fmtPace(1000 / pf.cs.cs)}</b><span>Schwellentempo /km</span></div>
+      <div class="card"><b>${fmtClock(pf.pred.k5)}</b><span>5 km${d(pf.pred.k5, pf.predThen?.k5)}</span></div>
+      <div class="card"><b>${fmtClock(pf.pred.k10)}</b><span>10 km${d(pf.pred.k10, pf.predThen?.k10)}</span></div>
+    </div>
+    <div class="cards3" style="margin-top:8px">
+      <div class="card"><b>${fmtClock(pf.pred.hm)}</b><span>Halbmarathon${d(pf.pred.hm, pf.predThen?.hm)}</span></div>
+      <div class="card"><b>${pf.cs.dprime ? nf(pf.cs.dprime) + " m" : "–"}</b><span>D′ (anaerobe Reserve)</span></div>
+      <div class="card"><b>${pf.cs.quality}</b><span>Aussagekraft</span></div>
+    </div>
+    <p class="note">Prognose bei guter Vorbereitung auf flacher Strecke, Veränderung gegenüber vor 6 Wochen. ${q}</p>
+    ${pf.kmBests.length ? `<div class="panel tablewrap" style="margin-top:12px"><table><thead><tr><th>Deine schnellsten Abschnitte</th><th class="num">Zeit</th><th class="num">Pace</th><th class="num">Datum</th></tr></thead><tbody>
+      ${pf.kmBests.map(({ k, b }) => `<tr><td>${k} km</td><td class="num">${fmtClock(b.t)}</td><td class="num">${fmtPace(b.t / k)} /km</td><td class="num"><a href="#einheit/${b.id}">${fmtDate(b.date)}</a></td></tr>`).join("")}
+    </tbody></table><p class="note">Aus den Kilometer-Splits aller Läufe, auch mitten im Lauf.</p></div>` : ""}`;
+}
+function drawPah(ref) {
+  charts.cPah?.destroy();
+  const runs = P.ws.filter((w) => w.sport === "run" && w.pah?.[ref]).slice(-60);
+  const note = document.getElementById("pahNote");
+  if (runs.length < 2) { note.textContent = `Zu wenige Läufe mit Pulswerten um ${ref} bpm.`; return; }
+  const y = runs.map((w) => w.pah[ref]), roll = y.map((_, i) => median(y.slice(Math.max(0, i - 4), i + 1)));
+  note.textContent = `${runs.length} Läufe mit genügend Messpunkten um ${ref} bpm.`;
+  mk("cPah", { data: { labels: runs.map((w) => fmtDate(w.date)), datasets: [
+      { type: "line", label: "Trend (5 Läufe)", data: roll, borderColor: css("--run"), borderWidth: 2.5, pointRadius: 0, tension: .3 },
+      { type: "scatter", label: "Lauf", data: y, backgroundColor: css("--run") + "88", pointRadius: 4 },
+    ] },
+    options: baseOpts({ onClick: (_, els) => { const e = els.find((x) => x.datasetIndex === 1); if (e) location.hash = `#einheit/${runs[e.index].id}`; },
+      scales: { x: { title: ax("Lauf (Datum)"), grid: { display: false }, ticks: { maxTicksLimit: 6 } }, y: { reverse: true, title: ax(`Pace bei ${ref} bpm (min/km)`), ticks: { callback: (v) => fmtPace(v) } } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmtPace(c.parsed.y)} /km` } } } }) });
+}
 function viewProgress() {
   document.getElementById("view").innerHTML = `
   <section><div class="sechead"><h2>Fitness, Ermüdung, Form</h2></div>
@@ -824,6 +1449,17 @@ function viewProgress() {
   <section><div class="sechead"><h2>Umfang je Woche</h2>
     <div class="seg" id="segVol" role="group" aria-label="Kennzahl"><button data-m="hours" aria-pressed="true">Stunden</button><button data-m="km" aria-pressed="false">km</button><button data-m="load" aria-pressed="false">Belastung</button></div></div>
     <div class="chartbox"><canvas id="cVol"></canvas></div></section>
+  <section><div class="sechead"><h2>Pace bei festem Puls</h2>
+    <div class="seg" id="segRef" role="group" aria-label="Referenzpuls">${P.perf.refs.map((r, i) => `<button data-r="${r}" aria-pressed="${i === 1}">${r} bpm</button>`).join("")}</div></div>
+    <p class="lead">Wie schnell du bei gleichem Puls läufst, steigungsbereinigt und ohne die ersten 10 Minuten. Wird die Linie schneller, wächst deine aerobe Leistungsfähigkeit.</p>
+    <div class="chartbox"><canvas id="cPah"></canvas></div><p class="note" id="pahNote"></p></section>
+  <section><div class="sechead"><h2>Schwelle und Prognose</h2></div>
+    ${perfCardsHtml()}
+  </section>
+  <div class="grid2">
+    <section><div class="sechead"><h2>Bestleistungskurve</h2></div><p class="lead">Schnellste Durchschnitts-Pace je Dauer aus deinen Läufen.</p><div class="chartbox"><canvas id="cMM"></canvas></div></section>
+    <section><div class="sechead"><h2>Prognose 10 km im Verlauf</h2></div><p class="lead">Jede Woche aus den Bestleistungen der 90 Tage davor berechnet.</p><div class="chartbox"><canvas id="cPred"></canvas></div></section>
+  </div>
   <div class="grid2">
     <section><div class="sechead"><h2>Laufökonomie</h2></div><p class="lead">Meter pro Minute je Herzschlag. Steigt der Wert, läufst du bei gleichem Puls schneller.</p><div class="chartbox"><canvas id="cEF"></canvas></div></section>
     <section><div class="sechead"><h2>VO₂max</h2></div><p class="lead">Schätzung der Uhr aus Läufen.</p><div class="chartbox"><canvas id="cVo2"></canvas></div></section>
@@ -857,6 +1493,22 @@ function viewProgress() {
       y2: { position: "right", reverse: true, grid: { display: false }, title: ax("Pace (min/km)"), ticks: { callback: (v) => fmtPace(v) } } },
       plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => c.dataset.yAxisID === "y2" ? `Pace: ${fmtPace(c.parsed.y)} /km` : `${c.dataset.label}: ${nf(c.parsed.y, 2)}` } } } }),
   });
+  drawPah(P.perf.refs[1]);
+  document.querySelectorAll("#segRef button").forEach((b) => b.onclick = () => { document.querySelectorAll("#segRef button").forEach((x) => x.setAttribute("aria-pressed", x === b)); drawPah(Number(b.dataset.r)); });
+  const pf = P.perf, mmD = PERF_D.filter((d) => pf.bestsAll[d]);
+  if (mmD.length) mk("cMM", { type: "line", data: { labels: mmD.map(durLabel), datasets: [
+      { label: "Letzte 90 Tage", data: mmD.map((d) => pf.bests90[d] ? 1000 / pf.bests90[d].v : null), borderColor: css("--run"), borderWidth: 2.5, pointRadius: 3, tension: .25 },
+      { label: "Letzte 6 Wochen", data: mmD.map((d) => pf.bests42[d] ? 1000 / pf.bests42[d].v : null), borderColor: css("--fatigue"), borderWidth: 1.8, pointRadius: 2, tension: .25, borderDash: [5, 4] },
+      ...(pf.cs ? [{ label: "Critical Speed", data: mmD.map(() => 1000 / pf.cs.cs), borderColor: css("--muted"), borderWidth: 1, pointRadius: 0, borderDash: [2, 3] }] : []),
+    ] },
+    options: baseOpts({ scales: { x: { title: ax("Dauer der Belastung"), grid: { display: false } }, y: { reverse: true, title: ax("Pace (min/km)"), ticks: { callback: (v) => fmtPace(v) } } },
+      plugins: { legend: legendBottom, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmtPace(c.parsed.y)} /km` } } } }) });
+  else document.getElementById("cMM").parentElement.innerHTML = `<p class="muted">Noch keine Läufe mit Tempoverlauf.</p>`;
+  const tr = pf.trend.filter((x) => x.k10);
+  if (tr.length >= 2) mk("cPred", { type: "line", data: { labels: pf.trend.map((x) => fmtDate(x.wk)), datasets: [{ label: "10 km", data: pf.trend.map((x) => x.k10 ? x.k10 / 60 : null), borderColor: css("--run"), borderWidth: 2.5, pointRadius: 2, spanGaps: true, tension: .3 }] },
+    options: baseOpts({ plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `Prognose 10 km: ${fmtClock(c.parsed.y * 60)}` } } },
+      scales: { x: { title: ax("Woche ab"), grid: { display: false }, ticks: { maxTicksLimit: 6 } }, y: { reverse: true, title: ax("Prognose 10 km (min:s)"), ticks: { callback: (v) => fmtClock(v * 60) } } } }) });
+  else document.getElementById("cPred").parentElement.innerHTML = `<p class="muted">Für einen Verlauf braucht es Bestleistungen aus mehreren Wochen.</p>`;
   const vo = P.ws.filter((w) => w.vo2max).slice(-80);
   mk("cVo2", { type: "line", data: { labels: vo.map((w) => fmtDate(w.date)), datasets: [{ label: "VO₂max", data: vo.map((w) => w.vo2max), borderColor: css("--ride"), borderWidth: 2.5, pointRadius: 2, tension: .3 }] },
     options: baseOpts({ plugins: { legend: { display: false } }, scales: { x: { title: ax("Lauf (Datum)"), grid: { display: false }, ticks: { maxTicksLimit: 6 } }, y: { title: ax("VO₂max (ml/kg/min)") } } }) });
@@ -968,7 +1620,8 @@ function demoData() {
     ws.push({ id: String(id++), type, start: t - 3600, durationSec: dur, distanceM: type === "10" ? null : speed * dur / 60, avgHr: avg,
       maxHr: Math.min(isRun ? 186 : 178, Math.max(...series.map((x) => x[1]))), ascentM: type === "10" ? null : Math.round(rnd(20, 400)), cadence: isRun ? Math.round(rnd(162, 176)) : null,
       paceSecKm: isRun ? 60000 / speed : null, vo2max: isRun ? Math.round(46 + prog * 3 + rnd(-1, 1)) : null, te: rnd(2, 4.2), kcal: Math.round(dur / 60 * 11), hrBins: bins, hrSeries: series,
-      speedSeries: type === "10" ? null : series.map(([t, h]) => [t, Math.max(.8, speed / 60 * (1 - (h - avg) / 400) * rnd(.95, 1.05))]),
+      speedSeries: type === "10" ? null : series.map(([t, h]) => [t, Math.max(.8, speed / 60 * (1 + (h - avg) / 250) * rnd(.95, 1.05))]),
+      gapSeries: type !== "1" ? null : series.map(([t, h]) => [t, Math.max(.8, speed / 60 * (1 + (h - avg) / 250) * rnd(.98, 1.02))]),
       splits: type === "10" ? null : Array.from({ length: Math.floor(speed * dur / 60 / 1000) }, (_, k) => ({ km: k + 1, paceSec: Math.round(60000 / speed * rnd(.95, 1.06)), hr: Math.round(avg + rnd(-6, 8)), cadence: isRun ? Math.round(rnd(160, 175)) : null, cumSec: Math.round((k + 1) * 60000 / speed) })) });
   }
   return { demo: true, meta: null, days, workouts: ws };
@@ -978,7 +1631,8 @@ function demoData() {
 function compute() {
   P = prepare(DATA);
   if (!P.ws.length) return;
-  R = readiness(P); I = buildInsights(P); REC = recommend(P, R, I);
+  P.perf = perfAnalysis(P);
+  R = readiness(P); I = buildInsights(P); I.out.unshift(...P.perf.insights); REC = recommend(P, R, I);
 }
 function applyChartDefaults() {
   Chart.defaults.font.family = "Barlow, system-ui, sans-serif";
@@ -988,7 +1642,7 @@ function applyChartDefaults() {
 async function init() {
   Chart.register(zoneBandsPlugin);
   applyChartDefaults();
-  document.getElementById("back").onclick = () => { location.hash = "#einheiten"; };
+  document.getElementById("back").onclick = () => { location.hash = location.hash.startsWith("#stabi") ? "#stabi" : "#einheiten"; };
   if (new URLSearchParams(location.search).has("demo")) DATA = demoData();
   else {
     try { const r = await fetch("/api/data"); if (!r.ok) throw new Error(`HTTP ${r.status}`); DATA = await r.json(); }
