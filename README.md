@@ -9,7 +9,7 @@ Holt täglich deine Workouts aus der **inoffiziellen** Zepp/Huami-Cloud-API, spe
 | Täglicher Sync | `netlify/functions/sync-scheduled.mjs` | 04:00 UTC, holt Workouts, Pulsverläufe sowie Schlaf, Ruhepuls und Schritte je Tag |
 | Manueller Sync | `netlify/functions/sync-now.mjs` | `/api/sync?key=<SYNC_KEY>`, für den Erstimport |
 | Daten-API | `netlify/functions/data.mjs` | `/api/data`, öffentlich, nur Kennzahlen (kein GPS, kein Ort) |
-| App | `public/index.html` | Mobile-first mit 4 Reitern: Heute, Einheiten (inkl. Detailansicht), Fortschritt, Analyse |
+| App | `public/index.html` | Mobile-first mit 5 Reitern: Heute, Einheiten (inkl. Detailansicht), Fortschritt, Analyse, Stabi |
 | Zepp-Client | `lib/zepp.mjs` | API-Aufrufe, Normalisierung, Pulsverlauf-Parser |
 
 ## Einrichtung
@@ -42,6 +42,19 @@ Das Token läuft nach einiger Zeit ab. Das Dashboard zeigt dann einen Hinweis. N
 - **Analyse:** Zusammenhänge, Belastung und Ruhepuls, Schlaf, Erholung nach harten Tagen, Einflüsse auf die Laufökonomie.
 
 Laufband (Sporttyp 8/11) ist kein Trainingsfokus: Es zählt zur Gesamtbelastung, erscheint aber nur unter „Sonstiges“.
+
+- **Stabi:** geführte Programme für Hüftbeuger, TFL und Hüftstabilität mit animierter Figur, Signaltönen und Sprachansage.
+
+## Leistungsanalyse Laufen
+
+- **Steigungsbereinigte Pace:** aus Zepps `equivPace`. Wird für Laufökonomie, Entkopplung und Pace bei festem Puls verwendet.
+- **Pace bei festem Puls:** je Lauf lineare Regression Tempo ~ Puls (±15 bpm um den Referenzpuls, ab Minute 10). Referenzpulse = Median deiner Ø-Pulse der letzten 90 Tage ±10 bpm.
+- **Bestleistungskurve:** schnellste Durchschnittspace über 1 min bis 1 h aus den Tempoverläufen.
+- **Critical Speed:** Distanz = CS × Zeit + D′ über die 90-Tage-Bestleistungen von 3 bis 30 min. Aussagekraft hängt davon ab, ob die Bestleistungen harte Belastungen waren (Puls ≥ 84–86 % HRmax). Daraus: Pace-Zonen, Pace-Vorgaben in der Empfehlung, Prognose 5 km / 10 km / Halbmarathon (Riegel, Exponent 1,06).
+
+## Stabi
+
+Programme „Hüfte lösen“ (Faszienrolle, Dehnung), „Hüfte stabil“ (Miniband, langes Band, Matte) und „Läufer-Kurzprogramm“. Der Player führt mit Vorbereitung, Countdown, Wiederholungszähler im vorgegebenen Tempo, Seitenwechsel und Pausen. Töne und Sprachansage (Browser-Sprachausgabe, Deutsch) lassen sich getrennt abschalten; der Bildschirm bleibt während des Programms an. Erledigte Einheiten werden nur im jeweiligen Browser gespeichert (localStorage). Übungen und Programme stehen in `EX` und `ROUTINES` in `public/index.html`.
 
 ## Trainingsempfehlung
 
