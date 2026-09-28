@@ -269,6 +269,7 @@ function prepare(data) {
     w.hardShare = zt ? (w.zones[3] + w.zones[4]) / zt : w.avgHr ? (w.avgHr / max >= .82 ? .5 : 0) : 0;
     w.easyShare = zt ? (w.zones[0] + w.zones[1]) / zt : w.avgHr ? (w.avgHr / max < .72 ? 1 : 0) : null;
     if (w.sport === "run" && w.avgHr && w.distanceM > 1000) w.ef = (w.distanceM / (w.durationSec / 60)) / w.avgHr;
+    w.decoupling = decoupling(w);
   }
   const runs = ws.filter((w) => w.ef);
   runs.forEach((w, i) => {
@@ -287,6 +288,19 @@ function prepare(data) {
   const byId = Object.fromEntries(ws.map((w) => [w.id, w]));
   return { ws, days, hr, series, byDate, hardThr, byId };
 }
+// Aerobe Entkopplung (Pa:HR): Tempo je Herzschlag in der ersten gegen die zweite Hälfte,
+// ohne die ersten 10 Minuten. Unter 5 % gilt die aerobe Ausdauer für diese Dauer als gut.
+function decoupling(w) {
+  if (!w.hrSeries || !w.speedSeries || w.sport === "indoor" || w.durationSec < 40 * 60) return null;
+  const sp = Object.fromEntries(w.speedSeries);
+  const pts = w.hrSeries.filter(([t]) => t >= 600 && sp[t] > .5).map(([t, h]) => [t, h, sp[t]]);
+  if (pts.length < 40) return null;
+  const mid = pts[Math.floor(pts.length / 2)][0];
+  const ef = (a) => mean(a.map((p) => p[2])) / mean(a.map((p) => p[1]));
+  const e1 = ef(pts.filter((p) => p[0] < mid)), e2 = ef(pts.filter((p) => p[0] >= mid));
+  return e1 > 0 ? (e1 - e2) / e1 * 100 : null;
+}
+
 function loadSeries(ws) {
   if (!ws.length) return [];
   const perDay = {};
@@ -415,6 +429,15 @@ function buildInsights(P) {
     out.push({ cls: rec.efTrend < 1 && rec.easyShare < 70 ? "warn" : "", title: "Intensität und Fortschritt",
       text: `Letzte 8 Wochen: ${nf(rec.easyShare)} % locker, ${nf(rec.midShare)} % Tempo (Z3), ${nf(rec.hardShare)} % hart. Laufökonomie ${sg(rec.efTrend, 1)} % gegenüber den 8 Wochen davor.`,
       meta: `${withZ.length} Einheiten mit Pulsverlauf` });
+  }
+  const dec = ws.filter((w) => w.decoupling != null && (w.easyShare ?? 0) >= .7 && w.durationSec >= 45 * 60);
+  const decNow = dec.filter((w) => w.date >= addDays(today(), -56)).map((w) => w.decoupling);
+  if (decNow.length >= 3) {
+    const m = median(decNow), before = median(dec.filter((w) => w.date < addDays(today(), -56)).map((w) => w.decoupling));
+    rec.decoupling = m;
+    out.push({ cls: m < 5 ? "solid" : "warn", title: "Aerobe Ausdauer",
+      text: `Bei lockeren Einheiten ab 45 min sinkt dein Tempo je Herzschlag in der zweiten Hälfte um ${nf(m, 1)} %. ${m < 5 ? "Unter 5 %: Deine Grundlage trägt über diese Dauer." : "Über 5 %: Die Grundlage reicht für diese Dauer noch nicht, mehr lange lockere Einheiten helfen am meisten."}${before != null ? ` Vor 8 Wochen: ${nf(before, 1)} %.` : ""}`,
+      meta: `Median aus ${decNow.length} Einheiten der letzten 8 Wochen, ohne die ersten 10 Minuten` });
   }
   return { out, rec, cond };
 }
@@ -677,6 +700,7 @@ function viewDetail(w) {
   if (w.zones) v.push(w.isHard ? `Harte Einheit: ${nf((w.zones[3] + w.zones[4]) / zt * 100)} % der Zeit in Z4–Z5.` : w.easyShare >= .8 ? `Saubere Grundlageneinheit: ${nf(w.easyShare * 100)} % in Z1–Z2.` : `Mischeinheit: ${nf(w.zones[2] / zt * 100)} % in Z3. Für Grundlage zu hart, für einen echten Reiz zu locker.`);
   else if (w.avgHr) v.push(`Ø Puls bei ${nf(w.avgHr / w.hrMaxUsed * 100)} % deines Maximalpulses.`);
   if (w.efRes != null) v.push(`Laufökonomie ${sg(w.efRes, 1)} % gegenüber deinem Trend${Math.abs(w.efRes) >= 3 ? (w.efRes > 0 ? ", ein klar guter Tag." : ", deutlich unter Normalform.") : "."}`);
+  if (w.decoupling != null) v.push(`Entkopplung ${nf(w.decoupling, 1)} %: ${w.decoupling < 5 ? "Tempo und Puls blieben bis zum Ende stabil." : w.decoupling < 10 ? "In der zweiten Hälfte kostete das Tempo spürbar mehr Puls." : "Deutlicher Leistungsabfall in der zweiten Hälfte, für diese Dauer fehlt noch Grundlage oder die Einheit war zu schnell begonnen."}`);
   const cond = [];
   if (day.rhr && bR && day.rhr - bR.m >= Math.max(3, bR.spread)) cond.push(`erhöhtem Ruhepuls (${sg(day.rhr - bR.m)} bpm)`);
   if (day.sleepMin && bS && day.sleepMin - bS.m <= -45) cond.push(`kurzer Nacht (${fmtH(day.sleepMin)})`);
@@ -702,6 +726,7 @@ function viewDetail(w) {
         ${w.ascentM ? kpi(nf(w.ascentM) + " m", "Anstieg") : ""}
         ${isRun && w.cadence ? kpi(nf(w.cadence), "Kadenz (Schritte/min)") : ""}
         ${w.vo2max ? kpi(nf(w.vo2max), "VO₂max") : ""}
+        ${w.decoupling != null ? kpi(nf(w.decoupling, 1) + " %", "Entkopplung Pa:HR") : ""}
         ${w.kcal ? kpi(nf(w.kcal), "kcal") : ""}
       </div>
       <p class="verdict">${v.join(" ")}</p>
@@ -711,6 +736,11 @@ function viewDetail(w) {
       ${w.hrSeries ? `<div class="chartbox tall"><canvas id="cHr" aria-label="Pulsverlauf über die Dauer der Einheit mit Pulszonen"></canvas></div>` : `<p class="muted">Kein Pulsverlauf für diese Einheit vorhanden${w.hrBins ? " (wird beim nächsten Sync nachgeladen)" : ""}.</p>`}
     </section>
     ${w.zones ? `<section><div class="sechead"><h2>Zeit in Zonen</h2></div><div class="chartbox"><canvas id="cWZones"></canvas></div></section>` : ""}
+    ${w.splits && w.splits.length >= 2 ? `<section><div class="sechead"><h2>Kilometer</h2></div>
+      <div class="chartbox"><canvas id="cSplits"></canvas></div>
+      <div class="panel tablewrap" style="margin-top:12px"><table><thead><tr><th>km</th><th class="num">${isRun ? "Pace" : "Tempo"}</th><th class="num">Ø Puls</th>${isRun ? `<th class="num">Kadenz</th>` : ""}<th class="num">Zeit gesamt</th></tr></thead><tbody>
+      ${w.splits.map((x) => `<tr><td>${x.km}</td><td class="num">${isRun ? fmtPace(x.paceSec) + " /km" : nf(3600 / x.paceSec, 1) + " km/h"}</td><td class="num">${x.hr ?? "–"}</td>${isRun ? `<td class="num">${x.cadence ?? "–"}</td>` : ""}<td class="num">${x.cumSec ? fmtDur(x.cumSec) : "–"}</td></tr>`).join("")}
+      </tbody></table><p class="note">Nur volle Kilometer.</p></div></section>` : ""}
     <section class="grid2">
       <div>
         <div class="sechead"><h2>Zustand am Tag</h2></div>
@@ -738,17 +768,39 @@ function viewDetail(w) {
 
   const zb = P.hr.zoneBpm(fam);
   if (w.hrSeries) {
-    const ser = w.hrSeries;
+    const ser = w.hrSeries, sp = w.speedSeries ? Object.fromEntries(w.speedSeries) : null;
+    const tempo = (v) => v > .5 ? (isRun ? 1000 / v : v * 3.6) : null;
+    const sets = [{ label: "Puls", data: ser.map(([t, h]) => ({ x: t / 60, y: h })), borderColor: css("--neg"), borderWidth: 1.8, pointRadius: 0, tension: .2, yAxisID: "y" }];
+    if (sp) sets.push({ label: isRun ? "Pace" : "Tempo", data: w.speedSeries.map(([t, v]) => ({ x: t / 60, y: tempo(v) })).filter((p) => p.y != null && (!isRun || p.y < 900)),
+      borderColor: css(SPORTS[w.sport].color), borderWidth: 1.2, pointRadius: 0, tension: .3, yAxisID: "y2" });
     mk("cHr", {
-      type: "line",
-      data: { labels: ser.map(([t]) => t / 60), datasets: [{ label: "Puls", data: ser.map(([, h]) => h), borderColor: css("--neg"), borderWidth: 1.8, pointRadius: 0, tension: .2 }] },
+      type: "line", data: { datasets: sets },
       options: baseOpts({
-        plugins: { legend: { display: false }, zoneBands: { bands: [0, 1, 2, 3, 4].map((i) => [zb[i], zb[i + 1], css(`--z${i + 1}`)]) },
-          tooltip: { callbacks: { title: (i) => `Minute ${nf(Number(i[0].label), 1)}`, label: (c) => `${c.parsed.y} bpm` } } },
+        plugins: { legend: sp ? legendBottom : { display: false }, zoneBands: { bands: [0, 1, 2, 3, 4].map((i) => [zb[i], zb[i + 1], css(`--z${i + 1}`)]) },
+          tooltip: { callbacks: { title: (i) => `Minute ${nf(i[0].parsed.x, 1)}`, label: (c) => c.dataset.yAxisID === "y2" ? (isRun ? `Pace ${fmtPace(c.parsed.y)} /km` : `${nf(c.parsed.y, 1)} km/h`) : `Puls ${c.parsed.y} bpm` } } },
         scales: {
           x: { type: "linear", title: ax("Minuten"), grid: { display: false }, ticks: { maxTicksLimit: 8, callback: (v) => nf(v) } },
           y: { title: ax("Puls (bpm)"), suggestedMin: zb[0] - 10, suggestedMax: zb[5] },
+          ...(sp ? { y2: { position: "right", reverse: isRun, grid: { display: false }, title: ax(isRun ? "Pace (min/km)" : "Tempo (km/h)"), ticks: { callback: (v) => isRun ? fmtPace(v) : nf(v) } } } : {}),
         },
+      }),
+    });
+  }
+  if (w.splits && w.splits.length >= 2) {
+    const sv = w.splits.map((x) => isRun ? x.paceSec : 3600 / x.paceSec);
+    const lo = Math.min(...sv), hi = Math.max(...sv), pad = (hi - lo) * .4 + (isRun ? 10 : 1);
+    mk("cSplits", {
+      data: { labels: w.splits.map((x) => String(x.km)), datasets: [
+        { type: "line", label: isRun ? "Pace" : "Tempo", data: sv, borderColor: css(SPORTS[w.sport].color), backgroundColor: css(SPORTS[w.sport].color), borderWidth: 2.5, pointRadius: 4, tension: .2, yAxisID: "y", order: 2 },
+        { type: "line", label: "Ø Puls", data: w.splits.map((x) => x.hr), borderColor: css("--neg"), borderWidth: 2, pointRadius: 3, yAxisID: "y2", order: 1 },
+      ] },
+      options: baseOpts({
+        scales: {
+          x: { title: ax("Kilometer"), grid: { display: false }, offset: true },
+          y: { reverse: isRun, min: Math.max(0, lo - pad), max: hi + pad, title: ax(isRun ? "Pace (min/km)" : "Tempo (km/h)"), ticks: { callback: (v) => isRun ? fmtPace(v) : nf(v) } },
+          y2: { position: "right", grid: { display: false }, title: ax("Ø Puls (bpm)") },
+        },
+        plugins: { legend: legendBottom, tooltip: { callbacks: { title: (i) => `Kilometer ${i[0].label}`, label: (c) => c.dataset.yAxisID === "y2" ? `Ø Puls ${c.parsed.y} bpm` : isRun ? `Pace ${fmtPace(c.parsed.y)} /km` : `${nf(c.parsed.y, 1)} km/h` } } },
       }),
     });
   }
@@ -915,7 +967,9 @@ function demoData() {
     }
     ws.push({ id: String(id++), type, start: t - 3600, durationSec: dur, distanceM: type === "10" ? null : speed * dur / 60, avgHr: avg,
       maxHr: Math.min(isRun ? 186 : 178, Math.max(...series.map((x) => x[1]))), ascentM: type === "10" ? null : Math.round(rnd(20, 400)), cadence: isRun ? Math.round(rnd(162, 176)) : null,
-      paceSecKm: isRun ? 60000 / speed : null, vo2max: isRun ? Math.round(46 + prog * 3 + rnd(-1, 1)) : null, te: rnd(2, 4.2), kcal: Math.round(dur / 60 * 11), hrBins: bins, hrSeries: series });
+      paceSecKm: isRun ? 60000 / speed : null, vo2max: isRun ? Math.round(46 + prog * 3 + rnd(-1, 1)) : null, te: rnd(2, 4.2), kcal: Math.round(dur / 60 * 11), hrBins: bins, hrSeries: series,
+      speedSeries: type === "10" ? null : series.map(([t, h]) => [t, Math.max(.8, speed / 60 * (1 - (h - avg) / 400) * rnd(.95, 1.05))]),
+      splits: type === "10" ? null : Array.from({ length: Math.floor(speed * dur / 60 / 1000) }, (_, k) => ({ km: k + 1, paceSec: Math.round(60000 / speed * rnd(.95, 1.06)), hr: Math.round(avg + rnd(-6, 8)), cadence: isRun ? Math.round(rnd(160, 175)) : null, cumSec: Math.round((k + 1) * 60000 / speed) })) });
   }
   return { demo: true, meta: null, days, workouts: ws };
 }
