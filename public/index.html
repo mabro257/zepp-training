@@ -247,7 +247,7 @@ function baseline(days, date, key, win = 30) {
 function prepare(data) {
   const days = data.days || {};
   const ws = data.workouts.filter((w) => w.start && w.durationSec);
-  for (const w of ws) { w.sport = sportOf(w.type); w.date = dayKey(new Date(w.start * 1000)); }
+  for (const w of ws) { w.sport = sportOf(w.type); w.date = dayKey(new Date(w.start * 1000)); if (w.te > 5) w.te /= 10; if (w.anaerobicTe > 5) w.anaerobicTe /= 10; }
   const hr = deriveHr(ws, days);
   const trimpF = (x) => x * 0.64 * Math.exp(1.92 * x);
   for (const w of ws) {
